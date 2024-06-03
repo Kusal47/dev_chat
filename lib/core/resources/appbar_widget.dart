@@ -17,7 +17,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       centerTitle: true,
       iconTheme: const IconThemeData(
-        size: 25, //change size on your need
+        size: 18, //change size on your need
         color: Colors.black, //change color on your need
       ),
       backgroundColor: Colors.white,
@@ -29,21 +29,18 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
               Navigator.pop(context);
             },
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            const SizedBox(
-              width: 5,
-            ),
-            const Icon(
-              Icons.arrow_back_ios,
-            ),
-            const SizedBox(
-              width: 5,
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: const Icon(
+                Icons.arrow_back_ios,
+              ),
             ),
             Text(
               appTitle,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontSize: 20,
+                    fontSize: 14,
                     color: blackColor,
                   ),
             ),

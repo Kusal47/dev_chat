@@ -88,4 +88,12 @@ class Validators {
     }
     return null;
   }
+
+  static String? validateFullName(String? value) {
+    final words = value?.trim().split(' ');
+    if (words!.length < 2) {
+      return 'Please enter your first and last name';
+    }
+    return null;
+  }
 }

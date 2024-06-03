@@ -6,7 +6,7 @@ class UIAssets {
   static const String flareDir = "assets/flares";
   static const String appLogoDir = "assets/app_logo";
   
-  static const String appLogo = "${appLogoDir}/logo.png";
+  static const String appLogo = "${appLogoDir}/logo.svg";
 
   static String getAppLogo(String imageName) {
     return "$appLogoDir/$imageName";

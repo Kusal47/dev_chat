@@ -3,7 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../resources/colors.dart';
-import '../../resources/ui_assets.dart';
+// import '../../resources/ui_assets.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+
 class PrimaryTextField extends StatelessWidget {
   final Function(String)? onValueChange;
   final String hint;
@@ -151,69 +153,70 @@ class PrimaryTextField extends StatelessWidget {
   }
 }
 
-// class PasswordField extends StatelessWidget {
-//   final FocusNode? focusNode;
-//   final String hint;
-//   final bool showPassword;
-//   final VoidCallback onEyeClick;
-//   final Function(String)? onSubmit;
-//   final Function(String)? onValueChange;
-//   // final TextEditingController controller;
-//   final TextInputAction textInputAction;
-//   final String? Function(String? value) validator;
-//   const PasswordField({
-//     Key? key,
-//     required this.hint,
-//     required this.showPassword,
-//     required this.onEyeClick,
-//     // required this.controller,
-//     required this.textInputAction,
-//     required this.onValueChange,
-//     this.onSubmit,
-//     this.focusNode,
-//     required this.validator,
-//   }) : super(key: key);
+class PasswordField extends StatelessWidget {
+  final FocusNode? focusNode;
+  final String hint;
+  final bool showPassword;
+  final VoidCallback onEyeClick;
+  final Function(String)? onSubmit;
+  final Function(String)? onValueChange;
+  // final TextEditingController controller;
+  final TextInputAction textInputAction;
+  final String? Function(String? value) validator;
+  const PasswordField({
+    Key? key,
+    required this.hint,
+    required this.showPassword,
+    required this.onEyeClick,
+    // required this.controller,
+    required this.textInputAction,
+    required this.onValueChange,
+    this.onSubmit,
+    this.focusNode,
+    required this.validator,
+  }) : super(key: key);
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return PrimaryTextField(
-//       maxLine: 1,
-//       onSubmitted: onSubmit,
-//       focusNode: focusNode,
-//       // controller: controller,
-//       obscureText: !showPassword,
-//       hint: hint,
-//       validator: validator,
-//       textInputAction: textInputAction,
-//       onValueChange: onValueChange,
-//       textInputType: TextInputType.visiblePassword,
-//       suffixIcon: InkWell(
-//         onTap: onEyeClick,
-//         child: Padding(
-//           padding: const EdgeInsets.only(left: 10, top: 10, bottom: 10, right: 10),
-//           // child: SvgPicture.asset(
-//           //   IconPath.eyeOff,
-//           //   fit: BoxFit.scaleDown,
-//           //   colorFilter: ColorFilter.mode(
-//           //     !showPassword ? primaryColor : dividerColor,
-//           //     BlendMode.srcIn,
-//           //   ),
-//           // ),
-//           child: SvgPicture.asset(
-//             showPassword ? UIAssets.eyeOn : UIAssets.eyeOff,
-//             fit: BoxFit.scaleDown,
-//             height: 12,
-//             width: 12,
-//             colorFilter: ColorFilter.mode(
-//               !showPassword ? primaryColor : hintColor,
-//               BlendMode.srcIn,
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    return PrimaryTextField(
+      maxLine: 1,
+      onSubmitted: onSubmit,
+      focusNode: focusNode,
+      // controller: controller,
+      obscureText: !showPassword,
+      hint: hint,
+      validator: validator,
+      textInputAction: textInputAction,
+      onValueChange: onValueChange,
+      textInputType: TextInputType.visiblePassword,
+      suffixIcon: InkWell(
+        onTap: onEyeClick,
+        child: Padding(
+            padding: const EdgeInsets.only(left: 10, top: 10, bottom: 10, right: 10),
+            // child: SvgPicture.asset(
+            //   IconPath.eyeOff,
+            //   fit: BoxFit.scaleDown,
+            //   colorFilter: ColorFilter.mode(
+            //     !showPassword ? primaryColor : dividerColor,
+            //     BlendMode.srcIn,
+            //   ),
+            // ),
+            child: showPassword ? Icon(Icons.visibility_sharp) : Icon(Icons.visibility_off)
+            //  SvgPicture.asset(
+            //   showPassword ?  UIAssets.eyeOn : UIAssets.eyeOff,
+            //   fit: BoxFit.scaleDown,
+            //   height: 12,
+            //   width: 12,
+            //   colorFilter: ColorFilter.mode(
+            //     !showPassword ? primaryColor : hintColor,
+            //     BlendMode.srcIn,
+            //   ),
+            // ),
+            ),
+      ),
+    );
+  }
+}
 
 // ignore: must_be_immutable
 class CustomDropdownFormField<T> extends StatelessWidget {
@@ -308,152 +311,155 @@ class CustomDropdownFormField<T> extends StatelessWidget {
   }
 }
 
-// class PrimaryFormField extends HookWidget {
-//   // final String? label;
-//   final String? hintTxt;
-//   final Widget? hintIcon;
-//   final bool? isFilled;
-//   // final bool isRequired;
+class PrimaryFormField extends HookWidget {
+  // final String? label;
+  final String? hintTxt;
+  final Widget? hintIcon;
+  final bool? isFilled;
+  // final bool isRequired;
 
-//   final String? Function(String?)? validator;
-//   final void Function(String)? onChanged;
-//   final void Function(String) onSaved;
-//   final Widget? prefixIcon;
-//   // final double? labelHeight;
-//   final bool? isPassword;
-//   final TextInputType? keyboardType;
-//   final TextEditingController? controller;
+  final String? Function(String?)? validator;
+  final void Function(String)? onChanged;
+  final void Function(String) onSaved;
+  final Widget? prefixIcon;
+  // final double? labelHeight;
+  final bool? isPassword;
+  final TextInputType? keyboardType;
+  final TextEditingController? controller;
 
-//   final int maxLines;
-//   final int? minLines;
-//   final bool? autofocus;
-//   final Widget? suffixIcon;
-//   final String? initialValue;
-//   final bool? readOnly;
-//   final InputBorder? focusedBorder;
-//   final InputBorder? enabledBorder;
-//   final EdgeInsetsGeometry? contentPadding;
-//   final List<TextInputFormatter>? inputFormatters;
-//   final double? fontSize;
+  final int? maxLines;
+  final int? minLines;
+  final bool? autofocus;
+  final Widget? suffixIcon;
+  final String? initialValue;
+  final bool? readOnly;
+  final InputBorder? focusedBorder;
+  final InputBorder? enabledBorder;
+  final EdgeInsetsGeometry? contentPadding;
+  final List<TextInputFormatter>? inputFormatters;
+  final double? fontSize;
 
-//   final void Function()? onTap;
-//   // final TextEditingController? controller;
-//   const PrimaryFormField({
-//     Key? key,
-//     this.onTap,
-//     this.hintTxt,
-//     this.initialValue,
-//     this.hintIcon,
-//     this.controller,
-//     // this.label,
+  final void Function()? onTap;
 
-//     // this.isRequired = false,
-//     this.validator,
-//     this.onChanged,
-//     this.maxLines = 1,
-//     this.minLines,
-//     required this.onSaved,
-//     this.suffixIcon,
-//     this.prefixIcon,
-//     // this.labelHeight,
-//     this.isPassword = false,
-//     this.isFilled = false,
-//     this.keyboardType,
-//     this.readOnly,
-//     this.focusedBorder,
-//     this.enabledBorder,
-//     // this.controller,
-//     this.contentPadding,
-//     this.autofocus,
-//     this.inputFormatters,
-//     this.fontSize,
-//   }) : super(key: key);
+  final String? labelTxt;
+  // final TextEditingController? controller;
+  const PrimaryFormField({
+    Key? key,
+    this.onTap,
+    this.hintTxt,
+    this.initialValue,
+    this.hintIcon,
+    this.controller,
+    // this.label,
+    this.labelTxt,
+    // this.isRequired = false,
+    this.validator,
+    this.onChanged,
+    this.maxLines=1,
+    this.minLines,
+    required this.onSaved,
+    this.suffixIcon,
+    this.prefixIcon,
+    // this.labelHeight,
+    this.isPassword = false,
+    this.isFilled = false,
+    this.keyboardType,
+    this.readOnly,
+    this.focusedBorder,
+    this.enabledBorder,
+    // this.controller,
+    this.contentPadding,
+    this.autofocus,
+    this.inputFormatters,
+    this.fontSize,
+  }) : super(key: key);
 
-//   @override
-//   Widget build(BuildContext context) {
-//     final isPasswordVisible = useState(isPassword!);
-//     return TextFormField(
-//       onTap: onTap,
-//       minLines: minLines ?? 1,
-//       maxLines: maxLines,
-//       initialValue: initialValue,
-//       keyboardType: keyboardType,
-//       controller: controller,
-//       autovalidateMode: AutovalidateMode.onUserInteraction,
-//       validator: validator,
-//       onSaved: (value) {
-//         onSaved(value!);
-//       },
-//       readOnly: readOnly ?? false,
-//       inputFormatters: inputFormatters,
+  @override
+  Widget build(BuildContext context) {
+    final isPasswordVisible = useState(isPassword!);
+    return TextFormField(
+      onTap: onTap,
+      minLines: minLines ?? 1,
+      maxLines: maxLines??null,
+      initialValue: initialValue,
+      keyboardType: keyboardType,
+      controller: controller,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      validator: validator,
+      onSaved: (value) {
+        onSaved(value!);
+      },
+      readOnly: readOnly ?? false,
+      inputFormatters: inputFormatters,
 
-//       onChanged: onChanged,
-//       autofocus: autofocus ?? false,
-//       obscureText: isPasswordVisible.value,
-//       // controller: controller,
-//       decoration: InputDecoration(
-//         // prefix: prefixIcon,
+      onChanged: onChanged,
+      autofocus: autofocus ?? false,
+      obscureText: isPasswordVisible.value,
+      // controller: controller,
+      decoration: InputDecoration(
+        // prefix: prefixIcon,
 
-//         errorMaxLines: 2,
-//         prefixIcon: hintIcon,
+        errorMaxLines: 2,
+        prefixIcon: hintIcon,
 
-//         suffixIcon: isPassword!
-//             ? InkWell(
-//                 onTap: () {
-//                   isPasswordVisible.value = !isPasswordVisible.value;
-//                 },
-//                 child: Padding(
-//                   padding: const EdgeInsets.symmetric(vertical: 5.0),
-//                   child: Icon(isPasswordVisible.value ? Icons.visibility : Icons.visibility_off,
-//                       size: 25, color: Theme.of(context).primaryColor),
-//                 ))
-//             : suffixIcon,
-//         hintText: hintTxt,
-//         hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
-//               color: Colors.grey,
-//               fontSize: 16,
-//               fontWeight: FontWeight.w400,
-//             ),
-//         labelStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
-//               color: kGrey200,
-//               fontSize: 18,
-//             ),
-//         filled: isFilled!,
-//         isDense: true,
-//         contentPadding: contentPadding ??
-//             const EdgeInsets.symmetric(horizontal: 10, vertical: 15), //TODO: VERTICAL:12
-//         fillColor: Colors.white70,
-//         errorBorder: const OutlineInputBorder(
-//             borderRadius: BorderRadius.all(Radius.circular(10)),
-//             borderSide: BorderSide(
-//               width: 1,
-//               color: dividerColor,
-//             )),
-//         focusedErrorBorder: const OutlineInputBorder(
-//             borderRadius: BorderRadius.all(Radius.circular(10)),
-//             borderSide: BorderSide(
-//               width: 1,
-//               color: dividerColor,
-//             )),
-//         enabledBorder: enabledBorder ??
-//             const OutlineInputBorder(
-//                 borderRadius: BorderRadius.all(Radius.circular(10)),
-//                 borderSide: BorderSide(
-//                   width: 1,
-//                   color: dividerColor,
-//                 )),
-//         focusedBorder: focusedBorder ??
-//             const OutlineInputBorder(
-//                 borderRadius: BorderRadius.all(Radius.circular(10)),
-//                 borderSide: BorderSide(
-//                   width: 1,
-//                   color: dividerColor,
-//                 )),
-//       ),
-//       style: TextStyle(
-//         color: Colors.black,
-//         fontSize: fontSize ?? 14,
-//       ),
-//     );
-//   }
-// }
+        suffixIcon: isPassword!
+            ? InkWell(
+                onTap: () {
+                  isPasswordVisible.value = !isPasswordVisible.value;
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 5.0),
+                  child: Icon(isPasswordVisible.value ? Icons.visibility : Icons.visibility_off,
+                      size: 25, color: Theme.of(context).primaryColor),
+                ))
+            : suffixIcon,
+        hintText: hintTxt,
+        labelText: labelTxt,
+        hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Colors.grey,
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+            ),
+        labelStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: primaryColor,
+              fontSize: 18,
+            ),
+        filled: isFilled!,
+        isDense: true,
+        contentPadding: contentPadding ??
+            const EdgeInsets.symmetric(horizontal: 10, vertical: 15), //TODO: VERTICAL:12
+        fillColor: Colors.white70,
+        errorBorder: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+            borderSide: BorderSide(
+              width: 1,
+              color: dividerColor,
+            )),
+        focusedErrorBorder: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+            borderSide: BorderSide(
+              width: 1,
+              color: dividerColor,
+            )),
+        enabledBorder: enabledBorder ??
+            const OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                borderSide: BorderSide(
+                  width: 1,
+                  color: dividerColor,
+                )),
+        focusedBorder: focusedBorder ??
+            const OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                borderSide: BorderSide(
+                  width: 1,
+                  color: dividerColor,
+                )),
+      ),
+      style: TextStyle(
+        color: Colors.black,
+        fontSize: fontSize ?? 14,
+      ),
+    );
+  }
+}

@@ -1,5 +1,11 @@
+import 'dart:convert';
+
+import 'package:dev_chat/features/auth/login/model/login_response_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
+
+import '../constants/storage_constants.dart';
 
 class SecureStorageService {
   final FlutterSecureStorage _storage = Get.find<FlutterSecureStorage>();
@@ -16,7 +22,7 @@ class SecureStorageService {
     await _storage.delete(key: key);
   }
 
-  // Future<void> saveUserData(User user) async {
+  // Future<void> saveUserData(UserModel user) async {
   //   try {
   //     String userDataJson = json.encode(user.toJson());
 
@@ -28,18 +34,19 @@ class SecureStorageService {
   //   }
   // }
 
-  // Future<User>? getUserData() async {
+  // Future<UserModel>? getUserData() async {
   //   try {
   //     String? userData = await readSecureData(StorageConstants.saveUserData);
   //     if (userData != null) {
   //       Map<String, dynamic> userDataMap = json.decode(userData);
-  //       return User.fromJson(userDataMap);
+  //       return UserModel.fromJson(userDataMap);
   //     } else {
-  //       return User();
+  //       return UserModel();
   //     }
   //   } catch (e) {
   //     print("Error while decoding user data: $e");
-  //     return User();
+  //     return UserModel();
   //   }
   // }
+
 }

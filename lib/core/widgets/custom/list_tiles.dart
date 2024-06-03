@@ -1,0 +1,149 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dev_chat/core/resources/colors.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
+class ListTilesCustom extends StatelessWidget {
+  const ListTilesCustom({
+    super.key,
+    this.text,
+    this.leadingWidget,
+    this.onTap,
+  });
+  final String? text;
+  final Widget? leadingWidget;
+  final Function()? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: leadingWidget,
+      title: Text(text ?? ''),
+      onTap: onTap,
+    );
+  }
+}
+
+class ListTilesWidget extends StatelessWidget {
+  const ListTilesWidget({
+    super.key,
+    this.title,
+    this.onTap,
+    this.subtitle,
+    this.trailingtitle,
+    this.radius,
+    this.icon,
+    this.bgColor,
+    this.iconColor,
+    this.textcolor,
+    this.fontSize,
+    this.fontWeight,
+    this.textbaseline,
+    this.fontStyle,
+    this.textOverflow,
+    this.trailIcon,
+    this.dateTime,
+    this.image,
+  });
+  final String? title;
+  final String? subtitle;
+  final String? trailingtitle;
+  final String? dateTime;
+  final Function()? onTap;
+  final double? radius;
+  final IconData? icon;
+  final IconData? trailIcon;
+  final Color? bgColor;
+  final Color? iconColor;
+  final Color? textcolor;
+  final double? fontSize;
+  final FontWeight? fontWeight;
+  final TextBaseline? textbaseline;
+  final FontStyle? fontStyle;
+  final TextOverflow? textOverflow;
+  final String? image;
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      onTap: onTap,
+      leading: image != null && image!.isNotEmpty
+          ? ClipRRect(
+              borderRadius: BorderRadius.circular(50),
+              child: CachedNetworkImage(
+                height: 60,
+                width: 60,
+                fit: BoxFit.cover,
+                // imageUrl: image!.isNotEmpty ? image.toString() : 'https://picsum.photos/200',
+                imageUrl: image.toString(),
+                placeholder: (context, url) => CircleAvatar(
+                    radius: 50,
+                    backgroundColor: bgColor ?? primaryColor,
+                    child: const Icon(Icons.person)),
+                errorWidget: (context, url, error) => CircleAvatar(
+                    radius: 50,
+                    backgroundColor: bgColor ?? primaryColor,
+                    child: const Icon(Icons.person)),
+              ),
+            )
+          : const CircleAvatar(
+              radius: 30,
+              child: Icon(
+                CupertinoIcons.person,
+                size: 70,
+              )),
+      // CircleAvatar(
+      //   backgroundColor: bgColor ?? primaryColor,
+      //   radius: radius ?? 10,
+      //   child: Icon(
+      //     icon,
+      //     color: iconColor ?? Colors.white,
+      //   ),
+      // ),
+      title: Text(title ?? "",
+          style: TextStyle(
+            fontSize: fontSize ?? 16,
+            fontWeight: fontWeight ?? FontWeight.bold,
+            color: textcolor ?? primaryColor,
+            // textBaseline: textbaseline??TextBaseline.alphabetic,
+            fontStyle: fontStyle ?? FontStyle.normal,
+            overflow: textOverflow ?? TextOverflow.ellipsis,
+          )),
+      subtitle: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(subtitle ?? "",
+                style: TextStyle(
+                  fontSize: fontSize ?? 12,
+                  fontWeight: fontWeight ?? FontWeight.normal,
+                  color: textcolor ?? primaryColor,
+                  // textBaseline: textbaseline??TextBaseline.alphabetic,
+                  fontStyle: fontStyle ?? FontStyle.normal,
+                  overflow: textOverflow ?? TextOverflow.ellipsis,
+                )),
+          ),
+          Text(dateTime ?? "",
+              style: TextStyle(
+                fontSize: fontSize ?? 12,
+                fontWeight: fontWeight ?? FontWeight.normal,
+                color: textcolor ?? primaryColor,
+                // textBaseline: textbaseline??TextBaseline.alphabetic,
+                fontStyle: fontStyle ?? FontStyle.normal,
+                overflow: textOverflow ?? TextOverflow.ellipsis,
+              )),
+        ],
+      ),
+      trailing: trailIcon != null
+          ? Icon(trailIcon)
+          : Text(trailingtitle ?? "",
+              style: TextStyle(
+                fontSize: fontSize ?? 14,
+                fontWeight: fontWeight ?? FontWeight.normal,
+                color: textcolor ?? primaryColor,
+                // textBaseline: textbaseline??TextBaseline.alphabetic,
+                fontStyle: fontStyle ?? FontStyle.normal,
+                overflow: textOverflow ?? TextOverflow.ellipsis,
+              )),
+    );
+  }
+}
