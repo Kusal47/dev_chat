@@ -12,10 +12,11 @@ Icon buildCustomIcon(
   );
 }
 
-TextStyle customTextStyle({double? fontSize, Color? color, FontWeight? fontWeight}) {
+TextStyle customTextStyle({double? fontSize, Color? color, FontWeight? fontWeight, TextOverflow? overflow}) {
   return TextStyle(
       fontSize: fontSize ?? 14,
       color: color ?? Colors.white,
       fontWeight: fontWeight ?? FontWeight.normal,
-      overflow: TextOverflow.ellipsis);
+      overflow:overflow?? TextOverflow.ellipsis
+      );
 }

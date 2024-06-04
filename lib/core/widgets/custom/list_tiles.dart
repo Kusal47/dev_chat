@@ -44,12 +44,14 @@ class ListTilesWidget extends StatelessWidget {
     this.trailIcon,
     this.dateTime,
     this.image,
+    this.onAddUser,
   });
   final String? title;
   final String? subtitle;
   final String? trailingtitle;
   final String? dateTime;
   final Function()? onTap;
+  final Function()? onAddUser;
   final double? radius;
   final IconData? icon;
   final IconData? trailIcon;
@@ -134,7 +136,9 @@ class ListTilesWidget extends StatelessWidget {
         ],
       ),
       trailing: trailIcon != null
-          ? Icon(trailIcon)
+          ? GestureDetector(
+            onTap: onAddUser,
+            child: Icon(trailIcon))
           : Text(trailingtitle ?? "",
               style: TextStyle(
                 fontSize: fontSize ?? 14,

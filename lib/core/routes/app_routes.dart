@@ -13,6 +13,9 @@ abstract class Routes {
   static const dashboard = _Paths.dashboard;
   static const chat = _Paths.chat;
   static const onBoardScreen = _Paths.onBoardScreen;
+  static const searchScreen = _Paths.searchScreen;
+  static const suggestion = _Paths.suggestion;
+  static const chatSettings = _Paths.chatSettings;
 }
 
 abstract class _Paths {
@@ -21,9 +24,11 @@ abstract class _Paths {
   static const register = '/register';
   static const login = '/login';
   static const resetPw = '/reset_password';
-    static const forgetPassword = '/forget_password';
-
+  static const forgetPassword = '/forget_password';
   static const dashboard = '/dashboard';
   static const chat = '/chat';
   static const onBoardScreen = '/on-board-screen';
+  static const searchScreen = '/search-screen';
+  static const suggestion = '/suggestion-screen';
+  static const chatSettings = '/chatSettings-screen';
 }

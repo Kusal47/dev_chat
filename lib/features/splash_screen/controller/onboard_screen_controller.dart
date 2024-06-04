@@ -25,18 +25,18 @@ class OnboardScreenController extends GetxController {
 
 List onboardingData = [
   {
-    'title': "Welcome to ChatApp",
-    'image': UIAssets.appLogo,
+    'title': "Welcome to devChat",
+    'image': "https://th.bing.com/th/id/OIP.nuWvKB_Hjm54ghTEuonzJQHaGG?w=240&h=198&c=7&r=0&o=5&dpr=2&pid=1.7",
     'description': "Connect with your friends and family."
   },
   {
     'title': 'Stay Connected',
-    'image': UIAssets.appLogo,
+    'image': "https://th.bing.com/th/id/OIP.nuWvKB_Hjm54ghTEuonzJQHaGG?w=240&h=198&c=7&r=0&o=5&dpr=2&pid=1.7",
     'description': 'Stay in touch with people no matter where you are.'
   },
   {
     'title': 'Secure and Private',
-    'image': UIAssets.appLogo,
+    'image': "https://th.bing.com/th/id/OIP.nuWvKB_Hjm54ghTEuonzJQHaGG?w=240&h=198&c=7&r=0&o=5&dpr=2&pid=1.7",
     'description': 'Your privacy is our top priority.',
   }
 ];

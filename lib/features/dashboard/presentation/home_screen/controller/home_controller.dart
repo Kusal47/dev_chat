@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dev_chat/core/api/firebase_request.dart';
 import 'package:dev_chat/core/routes/app_pages.dart';
+import 'package:dev_chat/core/widgets/common/toast.dart';
 import 'package:dev_chat/features/chats/model/message_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -14,12 +17,14 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    getUserDatafromfirebase();
+    getFollowedUserData();
   }
 
   bool isSearching = false;
   List<ChatUserResponseModel> searchedUsers = [];
   List<ChatUserResponseModel> userList = [];
-
+  List<ChatUserResponseModel> suggestedUser = [];
 
   final TextEditingController searchController = TextEditingController();
 
@@ -33,6 +38,11 @@ class HomeController extends GetxController {
   Stream<QuerySnapshot<Map<String, dynamic>>> getUserDatafromfirebase() {
     return firebaseRequest.getAllUserData();
   }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getFollowedUserData() {
+    return firebaseRequest.getFollowedUsersData();
+  }
+
   Stream<QuerySnapshot<Map<String, dynamic>>> getLastMessage(ChatUserResponseModel user) {
     return firebaseRequest.getLastMessage(user);
   }
@@ -51,6 +61,21 @@ class HomeController extends GetxController {
         }
       }
     }
+    update();
+  }
+
+  List<String> addedUserIds = [];
+  void addUser(String userId) async {
+    // if (!addedUserIds.contains(userId)) {
+    // addedUserIds.add(userId);
+    await firebaseRequest.addFollowedUserData(userId);
+    showSuccessToast('User added successfully');
+    update();
+    // }
+  }
+
+  void removeUser(String userId) {
+    addedUserIds.remove(userId);
     update();
   }
 }

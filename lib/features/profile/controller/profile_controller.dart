@@ -43,7 +43,6 @@ class ProfileController extends GetxController {
         loadUserData();
         hideLoadingDialog(context);
         showSuccessToast('User information updated successfully');
-        hideLoadingDialog(context);
       } else {
         showErrorToast('User information update failed');
         hideLoadingDialog(context);

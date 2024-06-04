@@ -134,6 +134,7 @@ class FirebaseRequest {
               'age': '',
               'address': '',
               'phone_number': '',
+              'followers': [],
             });
           }
 
@@ -232,11 +233,85 @@ class FirebaseRequest {
     }
   }
 
-  Stream<QuerySnapshot<Map<String, dynamic>>> getAllUserData() {
-    return authHelper.storage
-        .collection('chatUsers')
-        .where('email', isNotEqualTo: authHelper.user!.email)
-        .snapshots();
+  Stream<QuerySnapshot<Map<String, dynamic>>> getAllUserData() async* {
+    List<String> followers = await getCurrentUserFollowers();
+    User? currentUser = authHelper.auth.currentUser;
+    List<String> excludeIds = List.from(followers)..add(currentUser?.uid ?? '');
+    if (excludeIds.isNotEmpty) {
+      yield* authHelper.storage
+          .collection('chatUsers')
+          .where(FieldPath.documentId, whereNotIn: excludeIds)
+          .snapshots();
+    } else {
+      yield* const Stream.empty();
+    }
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getFollowedUsersData() async* {
+    if (await networkInfo.isConnected) {
+      try {
+        List<String> followers = await getCurrentUserFollowers();
+        if (followers.isNotEmpty) {
+          yield* authHelper.storage
+              .collection('chatUsers')
+              .where(FieldPath.documentId, whereIn: followers)
+              .snapshots();
+        } else {
+          yield* const Stream.empty();
+        }
+      } catch (e) {
+        print('Error getting followed users: $e');
+        yield* const Stream.empty();
+      }
+    } else {
+      showErrorToast("Network Error");
+      yield* const Stream.empty();
+    }
+  }
+
+  Future<List<String>> getCurrentUserFollowers() async {
+    User? currentUser = authHelper.auth.currentUser;
+    if (currentUser != null) {
+      DocumentSnapshot userSnapshot =
+          await authHelper.storage.collection('chatUsers').doc(currentUser.uid).get();
+      if (userSnapshot.exists) {
+        Map<String, dynamic> userData = userSnapshot.data() as Map<String, dynamic>;
+        List<String> followers = List<String>.from(userData['followers'] ?? []);
+        return followers;
+      }
+    }
+    return [];
+  }
+
+//   Future<List<String>> getCurrentUserFollowers() async {
+//   String currentUserId =authHelper.user!.uid;
+//   if (currentUserId != null) {
+//     DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+//         .collection('chatUsers')
+//         .doc(currentUserId)
+//         .get();
+//     if (userSnapshot.exists) {
+//       Map<String, dynamic> userData = userSnapshot.data()!;
+//       List<String> followers = List<String>.from(userData['followers'] ?? []);
+//       return followers;
+//     }
+//   }
+//   return [];
+// }
+
+  Future<bool> addFollowedUserData(String userId) async {
+    User? currentUser = authHelper.auth.currentUser;
+    if (currentUser == null) return false;
+
+    try {
+      await authHelper.storage.collection('chatUsers').doc(currentUser.uid).update({
+        'followers': FieldValue.arrayUnion([userId])
+      });
+      return true;
+    } catch (e) {
+      print('Error adding follower: $e');
+      return false;
+    }
   }
 
   // Fetch current user information
@@ -296,11 +371,12 @@ class FirebaseRequest {
         log("Data Transferred: ${data.bytesTransferred / 1000}kb");
       });
       final imageUrl = await ref.getDownloadURL();
+      final encryptedImage = EncryptionHelper().encryptData(imageUrl);
       if (currentUser != null) {
         await authHelper.storage
             .collection('chatUsers')
             .doc(currentUser.uid)
-            .update({'image': imageUrl});
+            .update({'image': encryptedImage});
       }
     } else {
       showErrorToast('Network Error');
@@ -319,11 +395,10 @@ class FirebaseRequest {
         .snapshots();
   }
 
-
-EncryptionService encryptionService = EncryptionService();
   Future<void> sendMessage(ChatUserResponseModel chatUser, String msg, Type type) async {
     if (await networkInfo.isConnected) {
-      final encryptedMessage = encryptionService.encryptMessage(msg);
+      final encryptedMessage = EncryptionHelper().encryptData(msg);
+
       final time = Timestamp.now();
       final MessageModel message = MessageModel(
           receiver: chatUser.id,
@@ -381,8 +456,10 @@ EncryptionService encryptionService = EncryptionService();
         .snapshots();
   }
 
-  Future<void> sendChatImage(ChatUserResponseModel chatUser, File file) async {
+  Future<void> sendChatImage(
+      BuildContext context, ChatUserResponseModel chatUser, File file) async {
     if (await networkInfo.isConnected) {
+      showLoadingDialog(context);
       final time = DateTime.now().millisecondsSinceEpoch.toString();
       final ext = file.path.split('.').last;
 
@@ -395,27 +472,28 @@ EncryptionService encryptionService = EncryptionService();
       });
       final imageUrl = await ref.getDownloadURL();
       await sendMessage(chatUser, imageUrl, Type.image);
+      hideLoadingDialog(context);
     } else {
       showErrorToast('Network Error');
+      hideLoadingDialog(context);
     }
   }
 
-
-
-    //delete message
-   Future<void> deleteMessage(MessageModel message) async {
+  //delete message
+  Future<void> deleteMessage(MessageModel message) async {
     await authHelper.storage
         .collection('chat/${chatId(message.receiver.toString())}/messages')
         .doc(message.sentTime.toString())
         .delete();
 
     if (message.type == Type.image) {
-      await authHelper.firebaseStorage.refFromURL(message.msg.toString()).delete();
+      final imageUrldecrypt = EncryptionHelper().decryptData(message.msg.toString());
+      await authHelper.firebaseStorage.refFromURL(imageUrldecrypt).delete();
     }
   }
 
   //update message
-   Future<void> updateMessage(MessageModel message, String updatedMsg) async {
+  Future<void> updateMessage(MessageModel message, String updatedMsg) async {
     await authHelper.storage
         .collection('chat/${chatId(message.receiver.toString())}/messages')
         .doc(message.sentTime.toString())

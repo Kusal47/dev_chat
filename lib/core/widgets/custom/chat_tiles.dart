@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:dev_chat/core/constants/encryption_services.dart';
 import 'package:dev_chat/core/widgets/custom/list_tiles.dart';
 import 'package:dev_chat/features/dashboard/presentation/home_screen/model/chat_user_model._response.dart';
 import 'package:flutter/material.dart';
@@ -12,9 +15,11 @@ import '../../routes/app_pages.dart';
 class CustomChatTiles extends StatelessWidget {
   final ChatUserResponseModel user;
 
-  const CustomChatTiles({super.key, this.isSuggestion = false, this.onTap, required this.user});
+  const CustomChatTiles(
+      {super.key, this.isSuggestion = false, this.onTap, this.onAddUser, required this.user});
   final bool isSuggestion;
   final Function()? onTap;
+  final Function()? onAddUser;
 
   @override
   Widget build(BuildContext context) {
@@ -43,23 +48,32 @@ class CustomChatTiles extends StatelessWidget {
                       if (lastMessageList.isNotEmpty) {
                         messageModel = lastMessageList[0];
                       }
+
+                      final decryptedImage = user.image != null && user.image!.isNotEmpty
+                          ? EncryptionHelper().decryptData(user.image.toString())
+                          : user.image;
+
                       return ListTilesWidget(
-                          image: user.image.toString(),
-                          onTap: onTap??() {
-                              Get.toNamed(Routes.chat, arguments: user);
-                          },
+                          image: decryptedImage,
+                          onTap:isSuggestion ? null : onTap ??
+                              () {
+                                Get.toNamed(Routes.chat, arguments: user);
+                              },
                           radius: 30,
                           icon: Bootstrap.person,
-                          title: user.name.toString(),
+                          title: user.name ?? '',
                           subtitle: messageModel != null
                               ? messageModel!.type == Type.image
                                   ? 'Sent Image'
-                                  : messageModel?.msg
+                                  : EncryptionHelper()
+                                      .decryptData(messageModel?.msg.toString() ?? '')
                               : user.about.toString(),
                           dateTime: messageModel?.sentTime != null
                               ? DateFormatterUtils.formatTime(messageModel?.sentTime)
                               : '',
-                          trailIcon: isSuggestion ? Bootstrap.person_add : null);
+                          trailIcon: isSuggestion ? Bootstrap.person_add : null,
+                          onAddUser: onAddUser,
+                          );
                     });
               })),
     );

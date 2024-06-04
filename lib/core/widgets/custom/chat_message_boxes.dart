@@ -4,16 +4,19 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dev_chat/core/api/firebase_apis.dart';
 import 'package:dev_chat/core/resources/colors.dart';
 import 'package:dev_chat/core/widgets/common/custom_widget.dart';
+import 'package:dev_chat/core/widgets/common/text_form_field.dart';
+import 'package:dev_chat/core/widgets/common/toast.dart';
+import 'package:dev_chat/features/chats/controller/chat_controller.dart';
 import 'package:dev_chat/features/chats/model/message_model.dart';
-import 'package:dev_chat/features/dashboard/presentation/home_screen/model/chat_user_model._response.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-
-import '../../api/firebase_request.dart';
+import 'package:icons_plus/icons_plus.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import '../../constants/date_formatter.dart';
 import '../../constants/encryption_services.dart';
+import 'custom_options_widget.dart';
 
 Widget receivedMessage(MessageModel message) {
   return Column(
@@ -79,7 +82,8 @@ Widget sentMessage(BuildContext context, MessageModel message) {
   //   }
   // }
 
-  final decryptMessage = EncryptionService().decryptMessage(message.msg.toString());
+  final decryptMessage = EncryptionHelper().decryptData(message.msg.toString());
+
   return Column(
     children: [
       Padding(
@@ -120,12 +124,15 @@ Widget sentMessage(BuildContext context, MessageModel message) {
                         child: message.type == Type.text
                             ? Text(
                                 decryptMessage,
-                                style: customTextStyle(fontSize: 14, color: Colors.white),
+                                style: customTextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white,
+                                    overflow: TextOverflow.visible),
                               )
                             : ClipRRect(
                                 borderRadius: BorderRadius.circular(15),
                                 child: CachedNetworkImage(
-                                  imageUrl: message.msg.toString(),
+                                  imageUrl: decryptMessage.toString(),
                                   fit: BoxFit.cover,
                                   placeholder: (context, url) => const Padding(
                                     padding: EdgeInsets.all(8.0),
@@ -163,130 +170,159 @@ void displayBottomSheet(BuildContext context, MessageModel message) {
           borderRadius:
               BorderRadius.only(topLeft: Radius.circular(0), topRight: Radius.circular(0))),
       builder: (_) {
-        return ListView(
-          shrinkWrap: true,
-          children: [
-            //black divider
-            Container(
-              height: 4,
-              margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-              // decoration: BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.circular(8)),
-            ),
+        return GetBuilder<ChatController>(
+            init: Get.find<ChatController>(),
+            builder: (controller) {
+              return ListView(
+                shrinkWrap: true,
+                children: [
+                  Container(
+                    height: 4,
+                    margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                  ),
 
-            message.type == Type.text
-                ?
-                //copy option
-                ChatOptions(
-                    icon: const Icon(Icons.copy_all_rounded, color: Colors.blue, size: 26),
-                    name: 'Copy Text',
-                    onTap: () async {
-                      await Clipboard.setData(ClipboardData(text: message.msg.toString()))
-                          .then((value) {
-                        //for hiding bottom sheet
-                        Navigator.pop(context);
-                      });
-                    })
-                :
-                //save option
-                ChatOptions(
-                    icon: const Icon(Icons.download_rounded, color: Colors.blue, size: 26),
-                    name: 'Save Image',
-                    onTap: () async {
-                      try {
-                        log('Image Url: ${message.msg}');
-                        // await GallerySaver.saveImage(widget.message.msg,
-                        //         albumName: 'We Chat')
-                        //     .then((success) {
-                        //   //for hiding bottom sheet
-                        //   Navigator.pop(context);
-                        //   if (success != null && success) {
-                        //     Dialogs.showSnackbar(
-                        //         context, 'Image Successfully Saved!');
-                        //   }
-                        // });
-                      } catch (e) {
-                        log('ErrorWhileSavingImg: $e');
-                      }
-                    }),
+                  message.type == Type.text
+                      ? CustomOptions(
+                          icon: const Icon(Icons.copy_all_rounded, color: Colors.blue, size: 26),
+                          name: 'Copy Text',
+                          onTap: () async {
+                            await Clipboard.setData(ClipboardData(text: message.msg.toString()))
+                                .then((value) {
+                              showSuccessToast('Copied Successfully!');
+                              Get.back();
+                            });
+                          })
+                      : CustomOptions(
+                          icon: const Icon(Icons.download_rounded, color: Colors.blue, size: 26),
+                          name: 'Save Image',
+                          onTap: () async {
+                            try {
+                              final imageUrldecrypt =
+                                  EncryptionHelper().decryptData(message.msg.toString());
+                              log('Image Url: $imageUrldecrypt');
 
-            //separator or divider
-            // if (isMe)
-            Divider(
-              color: Colors.black54,
-              endIndent: 10,
-              indent: 10,
-            ),
+                              // Download the image using Dio
+                              final response = await Dio().get(
+                                imageUrldecrypt,
+                                options: Options(responseType: ResponseType.bytes),
+                              );
 
-            //edit option
-            if (message.type == Type.text)
-              ChatOptions(
-                  icon: const Icon(Icons.edit, color: Colors.blue, size: 26),
-                  name: 'Edit Message',
-                  onTap: () {
-                    //for hiding bottom sheet
-                    Navigator.pop(context);
+                              if (response.statusCode == 200) {
+                                final Uint8List imageData = Uint8List.fromList(response.data);
 
-                    // _showMessageUpdateDialog();
-                  }),
+                                // Save the image
+                                final result = await ImageGallerySaver.saveImage(
+                                  imageData,
+                                  name: 'devChatImage',
+                                  quality: 100,
+                                );
 
-            //delete option
-            // if (isMe)
-            ChatOptions(
-                icon: const Icon(Icons.delete_forever, color: Colors.red, size: 26),
-                name: 'Delete Message',
-                onTap: () async {
-                  await FirebaseRequest().deleteMessage(message).then((value) {
-                    //for hiding bottom sheet
-                    Navigator.pop(context);
-                  });
-                }),
+                                if (result['isSuccess']) {
+                                  showSuccessToast('Image Successfully Saved!');
+                                } else {
+                                  log('ErrorWhileSavingImg: ${result['errorMessage']}');
+                                }
+                                Get.back();
+                              } else {
+                                log('ErrorWhileDownloadingImg: ${response.statusCode}');
+                                Get.back();
+                              }
+                            } catch (e) {
+                              log('ErrorWhileSavingImg: $e');
+                              Get.back();
+                            }
+                          },
+                        ),
 
-            //separator or divider
-            Divider(
-              color: Colors.black54,
-              endIndent: 10,
-              indent: 10,
-            ),
+                  const Divider(
+                    color: Colors.black54,
+                    endIndent: 10,
+                    indent: 10,
+                  ),
 
-            // //sent time
-            // ChatOptions(
-            //     icon: const Icon(Icons.remove_red_eye, color: Colors.blue),
-            //     name:
-            //         'Sent At: ${DateFormatterUtils.getMessageTime(context: context, time: widget.message.sent)}',
-            //     onTap: () {}),
+                  //edit option
+                  if (message.sender == AuthHelper().user!.uid && message.type == Type.text)
+                    CustomOptions(
+                        icon: const Icon(Icons.edit, color: Colors.blue, size: 26),
+                        name: 'Edit Message',
+                        onTap: () {
+                          Get.back();
 
-            // //read time
-            // ChatOptions(
-            //     icon: const Icon(Icons.remove_red_eye, color: Colors.green),
-            //     name: widget.message.read.isEmpty
-            //         ? 'Read At: Not seen yet'
-            //         : 'Read At: ${DateFormatterUtils.getMessageTime(context: context, time: widget.message.read)}',
-            //     onTap: () {}),
-          ],
-        );
+                          editDialogBox(context, message);
+                        }),
+
+                  if (message.sender == AuthHelper().user!.uid)
+                    CustomOptions(
+                        icon: const Icon(Icons.delete_forever, color: Colors.red, size: 26),
+                        name: 'Delete Message',
+                        onTap: () async {
+                          await controller.deleteMessage(context, message);
+                          Get.back();
+                        }),
+                ],
+              );
+            });
       });
 }
 
-class ChatOptions extends StatelessWidget {
-  final Icon icon;
-  final String name;
-  final VoidCallback onTap;
+editDialogBox(BuildContext context, MessageModel message) {
+  String updatedMsg = EncryptionHelper().decryptData(message.msg.toString());
 
-  const ChatOptions({required this.icon, required this.name, required this.onTap});
+  showDialog(
+      context: context,
+      builder: (_) => GetBuilder<ChatController>(
+          init: Get.find<ChatController>(),
+          builder: (controller) {
+            return AlertDialog(
+              contentPadding: const EdgeInsets.only(left: 24, right: 24, top: 20, bottom: 10),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: Row(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Icon(
+                      Bootstrap.chat,
+                      color: blackColor,
+                      size: 30,
+                    ),
+                  ),
+                  Text(
+                    'Update Message',
+                    style: customTextStyle(
+                        fontSize: 20, fontWeight: FontWeight.w700, color: blackColor),
+                  )
+                ],
+              ),
+              content: Form(
+                child: PrimaryFormField(
+                  keyboardType: TextInputType.multiline,
+                  onSaved: (value) => updatedMsg = value,
+                  initialValue: updatedMsg,
+                  maxLines: null,
+                  onChanged: (value) => updatedMsg = value,
+                ),
+              ),
+              actions: [
+                MaterialButton(
+                    onPressed: () {
+                      Get.back();
+                    },
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(color: Colors.blue, fontSize: 16),
+                    )),
 
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-        onTap: () => onTap(),
-        child: Padding(
-          padding: EdgeInsets.only(left: 20, top: 8, bottom: 8),
-          child: Row(children: [
-            icon,
-            Flexible(
-                child: Text('    $name',
-                    style:
-                        const TextStyle(fontSize: 15, color: Colors.black54, letterSpacing: 0.5)))
-          ]),
-        ));
-  }
+                //update button
+                MaterialButton(
+                    onPressed: () async {
+                      await controller.editMessage(context, message, updatedMsg);
+                      Get.back();
+                    },
+                    child: const Text(
+                      'Update',
+                      style: TextStyle(color: Colors.blue, fontSize: 16),
+                    ))
+              ],
+            );
+          }));
 }

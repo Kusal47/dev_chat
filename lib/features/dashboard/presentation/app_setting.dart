@@ -1,4 +1,6 @@
+import 'dart:developer';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dev_chat/core/api/firebase_apis.dart';
@@ -6,10 +8,15 @@ import 'package:dev_chat/core/api/firebase_request.dart';
 import 'package:dev_chat/features/profile/controller/profile_controller.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:get/get_navigation/src/routes/default_transitions.dart';
 
+import '../../../core/constants/encryption_services.dart';
 import '../../../core/resources/colors.dart';
+import '../../../core/resources/ui_assets.dart';
 import '../../../core/widgets/common/base_widget.dart';
+import '../../../core/widgets/common/buttons.dart';
 import '../../../core/widgets/custom/list_tiles.dart';
 import '../../auth/controller/auth_controller.dart';
 import '../../profile/presentation/profile_screen.dart';
@@ -35,6 +42,12 @@ class _AppSettingState extends State<AppSetting> {
     final authController = Get.find<AuthController>();
     return BaseWidget(builder: (context, config, theme) {
       return GetBuilder<ProfileController>(builder: (profileController) {
+        final decryptedImage = profileController.user.value.image != null &&
+                profileController.user.value.image!.isNotEmpty
+            ? EncryptionHelper().decryptData(profileController.user.value.image.toString())
+            : profileController.user.value.image;
+
+        // log("hello$decryptedImage");
         return GetBuilder<HomeController>(
             init: HomeController(),
             builder: (controller) {
@@ -57,12 +70,11 @@ class _AppSettingState extends State<AppSetting> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                profileController.user.value.image != null &&
-                                        profileController.user.value.image!.isNotEmpty
+                                decryptedImage != null && decryptedImage.isNotEmpty
                                     ? ClipRRect(
                                         borderRadius: BorderRadius.circular(50),
                                         child: CachedNetworkImage(
-                                          imageUrl: profileController.user.value.image.toString(),
+                                          imageUrl: decryptedImage,
                                           width: 100,
                                           height: 100,
                                           fit: BoxFit.cover,
@@ -136,9 +148,83 @@ class _AppSettingState extends State<AppSetting> {
                     ListTilesCustom(
                       leadingWidget: const Icon(Icons.logout),
                       text: 'LogOut',
-                      onTap: () async{
-                        authController.logout(context);
-                        await FirebaseRequest().updateActiveStatus(false);
+                      onTap: ()  {
+                        showDialog(
+                            context: context,
+                            builder: (_) {
+                              return Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Positioned.fill(
+                                    child: BackdropFilter(
+                                      filter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
+                                      child: Container(),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: Get.height * 0.5,
+                                    width: Get.width * 0.9,
+                                    child: AlertDialog(
+                                      titlePadding: EdgeInsets.zero,
+                                      contentPadding: EdgeInsets.zero,
+                                      actionsPadding: EdgeInsets.zero,
+                                      title: Padding(
+                                        padding: const EdgeInsets.all(5.0),
+                                        child: SizedBox(
+                                          height: 100,
+                                          child: SvgPicture.asset(
+                                            UIAssets.appLogo,
+                                            height: 100,
+                                          ),
+                                        ),
+                                      ),
+                                      content: const Text(
+                                        "Oh no! you’re leaving...\nAre you Sure?",
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            color: blackColor,
+                                            fontWeight: FontWeight.bold),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      actions: [
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Padding(
+                                                padding: const EdgeInsets.all(20.0),
+                                                child: PrimaryButton(
+                                                  radius: 10,
+                                                  backgroundColor: Colors.redAccent,
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                  label: "No",
+                                                ),
+                                              ),
+                                            ),
+                                            Expanded(
+                                              child: Padding(
+                                                padding: const EdgeInsets.all(20.0),
+                                                child: PrimaryButton(
+                                                  radius: 10,
+                                                  onPressed: () async {
+                                                    authController.logout(context);
+                                                    await FirebaseRequest()
+                                                        .updateActiveStatus(false);
+                                                  },
+                                                  label: "Yes",
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              );
+                            });
+                     
                       },
                     ),
                   ],

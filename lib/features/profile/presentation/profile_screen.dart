@@ -11,10 +11,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../core/constants/capitalize_first_letters.dart';
+import '../../../core/constants/encryption_services.dart';
 import '../model/update_params.dart';
 
 class ProfileScreen extends StatefulWidget {
-
   const ProfileScreen({
     super.key,
   });
@@ -33,7 +33,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final UpdateParams updateParams = UpdateParams();
+
     return GetBuilder<ProfileController>(builder: (controller) {
+      final decryptedImage =
+          controller.user.value.image != null && controller.user.value.image!.isNotEmpty
+              ? EncryptionHelper().decryptData(controller.user.value.image.toString())
+              : controller.user.value.image;
+      // final decryptedImage = EncryptionHelper().decryptData(controller.user.value.image.toString());
       return GestureDetector(
         onTap: FocusScope.of(context).unfocus,
         child: BaseWidget(builder: (context, config, theme) {
@@ -45,6 +51,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 leading: InkWell(
                     onTap: () {
                       // Get.offAllNamed(Routes.dashboard);
+                      controller.loadUserData();
                       Get.back();
                     },
                     child: Icon(Icons.arrow_back, color: Colors.white)),
@@ -74,15 +81,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   )
                                 : Padding(
                                     padding: const EdgeInsets.all(8.0),
-                                    child: controller.user.value.image != null &&
-                                            controller.user.value.image!.isNotEmpty
+                                    child: decryptedImage != null && decryptedImage.isNotEmpty
                                         ? ClipRRect(
                                             borderRadius: BorderRadius.circular(50),
                                             child: CachedNetworkImage(
                                               width: 100,
                                               height: 100,
                                               fit: BoxFit.cover,
-                                              imageUrl: controller.user.value.image.toString(),
+                                              imageUrl: decryptedImage,
                                               placeholder: (context, url) => const CircleAvatar(
                                                   child: Icon(CupertinoIcons.person)),
                                               errorWidget: (context, url, error) =>
@@ -114,8 +120,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ],
                         ),
 
-                        const Text("", style: TextStyle(color: Colors.black, fontSize: 16)),
-
                         SizedBox(height: Get.height * .05),
 
                         PrimaryFormField(
@@ -129,7 +133,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             updateParams.name = capitalizedValue;
                           },
                           initialValue: controller.user.value.name,
-                          validator: Validators.validateFullName,
+                          validator: Validators.checkFieldEmpty,
                           prefixIcon: const Icon(Icons.person, color: Colors.blue),
                         ),
                         SizedBox(height: Get.height * .02),

@@ -19,6 +19,7 @@ class RegisterParams {
   String? lastActive;
   bool? isOnline;
   String? pushToken;
+  List? followers;
 
   RegisterParams({
     this.id,
@@ -52,12 +53,13 @@ class RegisterParams {
     data['email'] = email ?? '';
     data["address"] = address ?? '';
     data["age"] = age ?? '';
-    data["createdAt"] = formattedDate??'';
+    data["createdAt"] = formattedDate ?? '';
     data["image"] = image ?? '';
     data["about"] = 'Hey there I am using DevChat';
     data["last_active"] = lastActive ?? '';
     data["is_online"] = isOnline ?? true;
     data["push_token"] = pushToken ?? '';
+    data["followers"] = followers ?? '';
 
     return data;
   }

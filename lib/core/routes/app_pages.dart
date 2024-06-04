@@ -1,6 +1,8 @@
 import 'package:dev_chat/features/auth/register/presentation/register_screen.dart';
 import 'package:dev_chat/features/chats/presentation/chat_conversation_screen.dart';
+import 'package:dev_chat/features/chats/presentation/chat_setting.dart';
 import 'package:dev_chat/features/dashboard/presentation/home_screen/presentation/dashboard_screen.dart';
+import 'package:dev_chat/features/search/presentation/search_screen.dart';
 import 'package:dev_chat/features/splash_screen/presentation/onboard_screen.dart';
 import 'package:get/get.dart';
 
@@ -34,7 +36,9 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.chat,
-      page:()=> ChatConversationScreen(user: Get.arguments,),
+      page: () => ChatConversationScreen(
+        user: Get.arguments,
+      ),
       arguments: Get.arguments,
     ),
     GetPage(
@@ -44,6 +48,19 @@ class AppPages {
     GetPage(
       name: _Paths.onBoardScreen,
       page: OnboardingScreen.new,
+    ),
+    GetPage(
+      name: _Paths.searchScreen,
+      page: () => SearchScreen(
+        userLists: Get.arguments,
+      ),
+    ),
+    GetPage(
+      name: _Paths.chatSettings,
+      page: () => ChatUserInfo(
+        user: Get.arguments,
+      ),
+      arguments: Get.arguments,
     ),
     // GetPage(
     //   name: _Paths.login,
