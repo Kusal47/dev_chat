@@ -13,6 +13,7 @@ import 'package:get/get.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
 import '../../../core/api/firebase_request.dart';
+import '../../../core/constants/encryption_services.dart';
 import '../../../core/widgets/common/custom_widget.dart';
 import '../../dashboard/presentation/home_screen/model/chat_user_model._response.dart';
 import '../model/message_model.dart';
@@ -49,6 +50,9 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<ChatController>(builder: (controller) {
+      final decryptedImage = widget.user.image != null && widget.user.image!.isNotEmpty
+          ? EncryptionHelper().decryptData(widget.user.image.toString())
+          : widget.user.image.toString();
       return BaseWidget(builder: (context, config, theme) {
         return GestureDetector(
           onTap: FocusScope.of(context).unfocus,
@@ -58,9 +62,10 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
               flexibleSpace: StreamBuilder(
                   stream: FirebaseRequest().getUserInfo(widget.user),
                   builder: (context, snapshot) {
-                    final data = snapshot.data?.docs;
-                    final list =
-                        data?.map((e) => ChatUserResponseModel.fromJson(e.data())).toList() ?? [];
+                    // final data = snapshot.data?.docs;
+                    // final list =
+                    //     data?.map((e) => ChatUserResponseModel.fromJson(e.data())).toList() ?? [];
+
                     return Container(
                       padding: EdgeInsets.only(
                         top: config.appVerticalPaddingMedium(),
@@ -82,11 +87,11 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
                                     child: buildCustomIcon(Icons.arrow_back, size: 25),
                                   ),
                                 ),
-                                widget.user.image != null && widget.user.image!.isNotEmpty
+                                decryptedImage != null && decryptedImage.isNotEmpty
                                     ? ClipRRect(
                                         borderRadius: BorderRadius.circular(50),
                                         child: CachedNetworkImage(
-                                          imageUrl: widget.user.image.toString(),
+                                          imageUrl: decryptedImage,
                                           width: 40,
                                           height: 40,
                                           fit: BoxFit.cover,
@@ -160,8 +165,13 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
                                     child: buildCustomIcon(HeroIcons.video_camera,
                                         size: config.appHeight(2.5))),
                                 Expanded(
-                                    child: buildCustomIcon(Bootstrap.info_circle,
-                                        size: config.appHeight(2.5))),
+                                    child: GestureDetector(
+                                  onTap: () {
+                                    Get.toNamed(Routes.chatSettings, arguments: widget.user);
+                                  },
+                                  child: buildCustomIcon(Bootstrap.info_circle,
+                                      size: config.appHeight(2.5)),
+                                )),
                               ],
                             ),
                           ),
@@ -211,7 +221,7 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
                                   //     ? sentMessage(message)
                                   //     : receivedMessage(message);
 
-                                  return sentMessage(context,message);
+                                  return sentMessage(context, message);
                                 },
                               ),
                             );
@@ -219,11 +229,11 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
                             return Center(
                               child: Column(
                                 children: [
-                                  widget.user.image != null && widget.user.image!.isNotEmpty
+                                  decryptedImage != null && decryptedImage.isNotEmpty
                                       ? ClipRRect(
                                           borderRadius: BorderRadius.circular(50),
                                           child: CachedNetworkImage(
-                                            imageUrl: widget.user.image.toString(),
+                                            imageUrl: decryptedImage,
                                             width: 100,
                                             height: 100,
                                             fit: BoxFit.cover,
@@ -332,7 +342,7 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
                                       Expanded(
                                         child: InkWell(
                                           onTap: () async {
-                                            await controller.clickImage(widget.user);
+                                            await controller.clickImage(context, widget.user);
                                           },
                                           child: buildCustomIcon(Bootstrap.camera,
                                               size: 25, color: primaryColor),
@@ -341,7 +351,8 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
                                       Expanded(
                                         child: InkWell(
                                             onTap: () async {
-                                              await controller.pickGallaryImage(widget.user);
+                                              await controller.pickGallaryImage(
+                                                  context, widget.user);
                                             },
                                             child: buildCustomIcon(Bootstrap.image,
                                                 size: 25, color: primaryColor)),
