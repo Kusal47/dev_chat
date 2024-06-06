@@ -15,7 +15,7 @@ class PrimaryButton extends StatelessWidget {
   final double? fontSize;
 
   const PrimaryButton({
-    Key? key,
+    super.key,
     required this.label,
     this.height,
     this.width,
@@ -26,13 +26,13 @@ class PrimaryButton extends StatelessWidget {
     this.labelWeight,
     required this.onPressed,
     this.fontSize,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        padding: EdgeInsets.all(0),
+        padding: const EdgeInsets.all(0),
         backgroundColor: backgroundColor ?? primaryColor,
         minimumSize: Size(width ?? double.maxFinite, height ?? 50),
         shape: RoundedRectangleBorder(
@@ -57,13 +57,13 @@ class PrimaryTextButton extends StatelessWidget {
   final bool? isSmallButton;
 
   const PrimaryTextButton({
-    Key? key,
+    super.key,
     required this.label,
     this.height,
     required this.onPressed,
     this.labelColor,
     this.isSmallButton = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -98,8 +98,8 @@ class PrimaryOutlinedButton extends StatelessWidget {
   final Color? iconColor;
   final double? iconSize;
 
-  PrimaryOutlinedButton(
-      {Key? key,
+  const PrimaryOutlinedButton(
+      {super.key,
       this.radius,
       this.width,
       this.iconSize,
@@ -110,14 +110,13 @@ class PrimaryOutlinedButton extends StatelessWidget {
       this.height,
       this.titleColor,
       required this.onPressed,
-      required this.title})
-      : super(key: key);
+      required this.title});
 
   @override
   Widget build(BuildContext context) {
     return OutlinedButton(
       style: OutlinedButton.styleFrom(
-        padding: EdgeInsets.all(0),
+        padding: const EdgeInsets.all(0),
         elevation: 0,
         minimumSize: Size(width ?? double.infinity, height ?? 40.0),
         side: BorderSide(
@@ -159,13 +158,13 @@ class PrimaryIconButton extends StatelessWidget {
   final IconData? icon;
 
   const PrimaryIconButton({
-    Key? key,
+    super.key,
     this.height,
     required this.onPressed,
     this.labelColor,
     this.isSmallButton = false,
     this.icon,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -173,8 +172,8 @@ class PrimaryIconButton extends StatelessWidget {
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
             backgroundColor: Theme.of(context).primaryColor,
-            minimumSize: Size(40, 40),
-            shape: RoundedRectangleBorder(
+            minimumSize: const Size(40, 40),
+            shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(5)),
             )),
         child: Icon(

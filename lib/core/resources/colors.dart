@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 //valid colors --below
-const primaryColor = Color.fromRGBO(0, 191, 99, 1);
+const primaryColor = Color.fromRGBO(0, 86, 191, 1);
 const hintColor = Color.fromRGBO(160, 160, 160, 1);
 const errorColor = Color.fromRGBO(227, 27, 40, 0.8);
 const backgroundColor = Colors.white;
@@ -20,11 +20,11 @@ const gradientDark = Color.fromARGB(255, 57, 177, 252);
 // -------------------------------------------
 
 // -------------------------------------------
-const primaryColor2 = Color.fromRGBO(6, 112, 59, 1);
+const primaryColor2 = Color.fromRGBO(1, 61, 134, 1);
 
-const primaryColorDark = Color.fromRGBO(227, 27, 40, 0.8);
+const primaryColorDark = Color.fromRGBO(1, 1, 116, 0.8);
 // const primaryColorLight = Color(0xffFFC6C8);
-const primaryColorLight = Color(0xffFFB21E);
+const primaryColorLight = Color.fromARGB(255, 58, 65, 246);
 const kGreen200 = Color(0xff178841);
 const secondaryColor = Color.fromARGB(255, 56, 83, 53);
 const kYellow200 = Color.fromRGBO(0, 151, 75, 1);
