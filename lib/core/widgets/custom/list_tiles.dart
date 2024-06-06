@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dev_chat/core/resources/colors.dart';
+import 'package:dev_chat/core/widgets/common/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -69,23 +70,10 @@ class ListTilesWidget extends StatelessWidget {
     return ListTile(
       onTap: onTap,
       leading: image != null && image!.isNotEmpty
-          ? ClipRRect(
-              borderRadius: BorderRadius.circular(50),
-              child: CachedNetworkImage(
-                height: 60,
-                width: 60,
-                fit: BoxFit.cover,
-                // imageUrl: image!.isNotEmpty ? image.toString() : 'https://picsum.photos/200',
-                imageUrl: image.toString(),
-                placeholder: (context, url) => CircleAvatar(
-                    radius: 50,
-                    backgroundColor: bgColor ?? primaryColor,
-                    child: const Icon(Icons.person)),
-                errorWidget: (context, url, error) => CircleAvatar(
-                    radius: 50,
-                    backgroundColor: bgColor ?? primaryColor,
-                    child: const Icon(Icons.person)),
-              ),
+          ? CustomCachedImage(
+              height: 60,
+              width: 60,
+              imageUrl: image.toString(),
             )
           : const CircleAvatar(
               radius: 30,
@@ -93,14 +81,6 @@ class ListTilesWidget extends StatelessWidget {
                 CupertinoIcons.person,
                 size: 70,
               )),
-      // CircleAvatar(
-      //   backgroundColor: bgColor ?? primaryColor,
-      //   radius: radius ?? 10,
-      //   child: Icon(
-      //     icon,
-      //     color: iconColor ?? Colors.white,
-      //   ),
-      // ),
       title: Text(title ?? "",
           style: TextStyle(
             fontSize: fontSize ?? 16,
@@ -136,9 +116,7 @@ class ListTilesWidget extends StatelessWidget {
         ],
       ),
       trailing: trailIcon != null
-          ? GestureDetector(
-            onTap: onAddUser,
-            child: Icon(trailIcon))
+          ? GestureDetector(onTap: onAddUser, child: Icon(trailIcon))
           : Text(trailingtitle ?? "",
               style: TextStyle(
                 fontSize: fontSize ?? 14,

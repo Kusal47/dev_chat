@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dev_chat/core/api/firebase_apis.dart';
 import 'package:dev_chat/core/api/firebase_request.dart';
+import 'package:dev_chat/core/widgets/common/cached_network_image.dart';
 import 'package:dev_chat/features/profile/controller/profile_controller.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -42,12 +43,11 @@ class _AppSettingState extends State<AppSetting> {
     final authController = Get.find<AuthController>();
     return BaseWidget(builder: (context, config, theme) {
       return GetBuilder<ProfileController>(builder: (profileController) {
+        log(profileController.user.value.image.toString());
         final decryptedImage = profileController.user.value.image != null &&
                 profileController.user.value.image!.isNotEmpty
             ? EncryptionHelper().decryptData(profileController.user.value.image.toString())
             : profileController.user.value.image;
-
-        // log("hello$decryptedImage");
         return GetBuilder<HomeController>(
             init: HomeController(),
             builder: (controller) {
@@ -71,18 +71,11 @@ class _AppSettingState extends State<AppSetting> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 decryptedImage != null && decryptedImage.isNotEmpty
-                                    ? ClipRRect(
-                                        borderRadius: BorderRadius.circular(50),
-                                        child: CachedNetworkImage(
-                                          imageUrl: decryptedImage,
-                                          width: 100,
-                                          height: 100,
-                                          fit: BoxFit.cover,
-                                          placeholder: (context, url) => const CircleAvatar(
-                                              child: Icon(CupertinoIcons.person)),
-                                          errorWidget: (context, url, error) => const CircleAvatar(
-                                              child: Icon(CupertinoIcons.person)),
-                                        ))
+                                    ? CustomCachedImage(
+                                      imageUrl: decryptedImage.toString(),
+                                      width: 100,
+                                      height: 100,
+                                    )
                                     : profileController.pickedImage != null
                                         ? Padding(
                                             padding: const EdgeInsets.all(8.0),

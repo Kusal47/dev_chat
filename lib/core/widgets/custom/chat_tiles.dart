@@ -54,26 +54,31 @@ class CustomChatTiles extends StatelessWidget {
                           : user.image;
 
                       return ListTilesWidget(
-                          image: decryptedImage,
-                          onTap:isSuggestion ? null : onTap ??
-                              () {
-                                Get.toNamed(Routes.chat, arguments: user);
-                              },
-                          radius: 30,
-                          icon: Bootstrap.person,
-                          title: user.name ?? '',
-                          subtitle: messageModel != null
-                              ? messageModel!.type == Type.image
-                                  ? 'Sent Image'
-                                  : EncryptionHelper()
-                                      .decryptData(messageModel?.msg.toString() ?? '')
-                              : user.about.toString(),
-                          dateTime: messageModel?.sentTime != null
-                              ? DateFormatterUtils.formatTime(messageModel?.sentTime)
-                              : '',
-                          trailIcon: isSuggestion ? Bootstrap.person_add : null,
-                          onAddUser: onAddUser,
-                          );
+                        image: decryptedImage,
+                        onTap: isSuggestion
+                            ? null
+                            : onTap ??
+                                () {
+                                  Get.toNamed(
+                                    Routes.chat,
+                                    arguments: 
+                                      user, 
+                                  );
+                                },
+                        radius: 30,
+                        icon: Bootstrap.person,
+                        title: user.name ?? '',
+                        subtitle: messageModel != null
+                            ? messageModel!.type == Type.image
+                                ? 'Sent Image'
+                                : EncryptionHelper().decryptData(messageModel?.msg.toString() ?? '')
+                            : user.about.toString(),
+                        dateTime: messageModel?.sentTime != null
+                            ? DateFormatterUtils.formatTime(messageModel?.sentTime)
+                            : '',
+                        trailIcon: isSuggestion ? Bootstrap.person_add : null,
+                        onAddUser: onAddUser,
+                      );
                     });
               })),
     );

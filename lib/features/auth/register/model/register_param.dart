@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dev_chat/core/api/firebase_apis.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
@@ -59,7 +60,7 @@ class RegisterParams {
     data["last_active"] = lastActive ?? '';
     data["is_online"] = isOnline ?? true;
     data["push_token"] = pushToken ?? '';
-    data["followers"] = followers ?? '';
+    data["followers"] = FieldValue.arrayUnion([]);
 
     return data;
   }

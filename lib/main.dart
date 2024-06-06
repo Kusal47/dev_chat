@@ -101,8 +101,6 @@ class MyNotificationHandler {
     );
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print('Got a message whilst in the foreground!');
-      log('Message data: ${message.data}');
 
       if (message.notification != null) {
         displayLocalNotification(message);

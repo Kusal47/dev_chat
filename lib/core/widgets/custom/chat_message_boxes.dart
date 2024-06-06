@@ -186,7 +186,8 @@ void displayBottomSheet(BuildContext context, MessageModel message) {
                           icon: const Icon(Icons.copy_all_rounded, color: Colors.blue, size: 26),
                           name: 'Copy Text',
                           onTap: () async {
-                            await Clipboard.setData(ClipboardData(text: message.msg.toString()))
+                            await Clipboard.setData(ClipboardData(
+                                    text: EncryptionHelper().decryptData(message.msg.toString())))
                                 .then((value) {
                               showSuccessToast('Copied Successfully!');
                               Get.back();

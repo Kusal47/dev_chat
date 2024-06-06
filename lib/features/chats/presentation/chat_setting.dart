@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dev_chat/core/resources/colors.dart';
 import 'package:dev_chat/core/widgets/common/base_widget.dart';
+import 'package:dev_chat/core/widgets/common/cached_network_image.dart';
 import 'package:dev_chat/core/widgets/common/custom_widget.dart';
 import 'package:dev_chat/features/dashboard/presentation/home_screen/model/chat_user_model._response.dart';
 import 'package:flutter/cupertino.dart';
@@ -40,18 +41,12 @@ class _ChatUserInfoState extends State<ChatUserInfo> {
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: decryptedImage != null && decryptedImage.isNotEmpty
-                              ? ClipRRect(
-                                  borderRadius: BorderRadius.circular(100),
-                                  child: CachedNetworkImage(
-                                    width: 200,
-                                    height: 200,
-                                    fit: BoxFit.cover,
-                                    imageUrl: decryptedImage,
-                                    placeholder: (context, url) =>
-                                        const CircleAvatar(child: Icon(CupertinoIcons.person)),
-                                    errorWidget: (context, url, error) =>
-                                        const CircleAvatar(child: Icon(CupertinoIcons.person)),
-                                  ))
+                              ? CustomCachedImage(
+                                  width: 200,
+                                  height: 200,
+                                  imageUrl: decryptedImage,
+                                  radius: 100,
+                                )
                               : const CircleAvatar(
                                   radius: 50,
                                   child: Icon(

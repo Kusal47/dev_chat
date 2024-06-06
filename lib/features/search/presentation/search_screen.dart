@@ -2,7 +2,6 @@ import 'package:dev_chat/core/resources/colors.dart';
 import 'package:dev_chat/core/widgets/common/base_widget.dart';
 import 'package:dev_chat/features/dashboard/presentation/home_screen/controller/home_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
@@ -31,19 +30,20 @@ class _SearchScreenState extends State<SearchScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                InkWell(
+                Padding(
+                  padding: EdgeInsets.only(top: config.appVerticalPaddingLarge(), left: 8.0),
+                  child: GestureDetector(
                     onTap: () {
                       Get.offAllNamed(Routes.dashboard);
                     },
-                    child: Padding(
-                      padding: EdgeInsets.only(top: config.appVerticalPaddingLarge(), left: 8.0),
-                      child: const Row(
-                        children: [
-                          Icon(Icons.arrow_back_ios, color: primaryColor),
-                          Text('Back'),
-                        ],
-                      ),
-                    )),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.arrow_back, color: primaryColor),
+                        Text('Back'),
+                      ],
+                    ),
+                  ),
+                ),
                 Row(
                   children: [
                     Expanded(

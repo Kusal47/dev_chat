@@ -7,7 +7,7 @@ class AuthHelper {
   FirebaseAuth auth = FirebaseAuth.instance;
   FirebaseFirestore storage = FirebaseFirestore.instance;
   FirebaseStorage firebaseStorage = FirebaseStorage.instance;
- User? get user => auth.currentUser;
+  User? get user => auth.currentUser;
 
   Future loginUser({required String email, required String password}) async {
     return await auth.signInWithEmailAndPassword(email: email, password: password);

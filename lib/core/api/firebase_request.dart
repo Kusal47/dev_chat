@@ -24,6 +24,8 @@ import 'package:intl/intl.dart';
 import '../../features/auth/login/model/login_params.dart';
 import '../../features/profile/model/update_params.dart';
 import '../constants/encryption_services.dart';
+import '../constants/storage_constants.dart';
+import '../resources/secure_storage_functions.dart';
 import '../widgets/common/loading_dialog.dart';
 import 'network_info.dart';
 
@@ -31,14 +33,13 @@ class FirebaseRequest {
   final networkInfo = Get.find<NetworkInfo>();
   final authHelper = Get.find<AuthHelper>();
 
-  Future<User?> loginWithEmailAndPassword(LoginParams loginParams) async {
+ Future<User?> loginWithEmailAndPassword(LoginParams loginParams) async {
     if (await networkInfo.isConnected) {
       try {
         UserCredential userCredential = await authHelper.loginUser(
           email: loginParams.email.toString(),
           password: loginParams.password.toString(),
         );
-
         return userCredential.user;
       } on FirebaseAuthException catch (e) {
         print('FirebaseAuthException: ${e.code}');
@@ -134,7 +135,7 @@ class FirebaseRequest {
               'age': '',
               'address': '',
               'phone_number': '',
-              'followers': [],
+              'followers': FieldValue.arrayUnion([]),
             });
           }
 
@@ -406,7 +407,8 @@ class FirebaseRequest {
           read: '',
           type: type,
           sender: authHelper.user!.uid,
-          sentTime: time);
+          sentTime: time
+          );
 
       final ref = authHelper.storage.collection('chat/${chatId(chatUser.id.toString())}/messages');
       await ref.doc(time.toString()).set(message.toJson()).then((value) async {
