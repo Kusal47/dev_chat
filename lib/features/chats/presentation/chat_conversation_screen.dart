@@ -14,7 +14,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:icons_plus/icons_plus.dart';
-// import 'package:stream_video_flutter/stream_video_flutter.dart' as stream;
+import 'package:stream_video_flutter/stream_video_flutter.dart' as stream;
 // import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import '../../../core/api/firebase_request.dart';
 import '../../../core/constants/encryption_services.dart';
@@ -43,17 +43,17 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
     Get.put(ChatController()).generateCallId(widget.user.id.toString());
 
     super.initState();
-    // stream.StreamVideo.reset();
-    // final client = stream.StreamVideo(
-    //   '73u4jjq2tunh', //getStream api key
-    //   user: stream.User.regular(
-    //       userId: AuthHelper().user!.uid, //current user id
+    stream.StreamVideo.reset();
+    final client = stream.StreamVideo(
+      '73u4jjq2tunh', //getStream api key
+      user: stream.User.regular(
+          userId: AuthHelper().user!.uid, //current user id
 
-    //       role: 'user',
-    //       name: widget.user.name),
-    //   userToken: Get.find<ChatController>().token, // token of current user logged in
-    //   // 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiWmFtX1dlc2VsbCIsImlzcyI6Imh0dHBzOi8vcHJvbnRvLmdldHN0cmVhbS5pbyIsInN1YiI6InVzZXIvWmFtX1dlc2VsbCIsImlhdCI6MTcxNzU2NTIzMywiZXhwIjoxNzE4MTcwMDM4fQ.WTyCEra6haM66h7aqUeK84lObnNLNxilxrkn7cqZB-0',
-    // );
+          role: 'user',
+          name: widget.user.name),
+      userToken: Get.find<ChatController>().token, // token of current user logged in
+      // 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiWmFtX1dlc2VsbCIsImlzcyI6Imh0dHBzOi8vcHJvbnRvLmdldHN0cmVhbS5pbyIsInN1YiI6InVzZXIvWmFtX1dlc2VsbCIsImlhdCI6MTcxNzU2NTIzMywiZXhwIjoxNzE4MTcwMDM4fQ.WTyCEra6haM66h7aqUeK84lObnNLNxilxrkn7cqZB-0',
+    );
   }
 
   final formKey = GlobalKey<FormState>();
@@ -191,43 +191,43 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
                                     //     return CallPage(callID: Get.find<ChatController>().callId);
                                     //   }),
                                     // );
-                                    // try {
-                                    //     var call = stream.StreamVideo.instance.makeCall(
-                                    //       callType: stream.StreamCallType(),
-                                    //       id: Get.find<ChatController>().callId,
-                                    //     );
+                                    try {
+                                        var call = stream.StreamVideo.instance.makeCall(
+                                          callType: stream.StreamCallType(),
+                                          id: Get.find<ChatController>().callId,
+                                        );
 
-                                    //     await call.getOrCreate(ringing: true, notify: true);
+                                        await call.getOrCreate(ringing: true, notify: true);
 
-                                    //     FirebaseFirestore.instance
-                                    //         .collection('calls')
-                                    //         .doc(Get.find<ChatController>().callId)
-                                    //         .set({
-                                    //           'callerId': AuthHelper().user!.uid,
-                                    //           'receiverId': widget.user.id,
-                                    //           'status': 'ringing',
-                                    //         })
-                                    //         .then((value) => log('Call started'))
-                                    //         .catchError(
-                                    //             (error) => log('Failed to start call: $error'));
+                                        // FirebaseFirestore.instance
+                                        //     .collection('calls')
+                                        //     .doc(Get.find<ChatController>().callId)
+                                        //     .set({
+                                        //       'callerId': AuthHelper().user!.uid,
+                                        //       'receiverId': widget.user.id,
+                                        //       'status': 'ringing',
+                                        //     })
+                                        //     .then((value) => log('Call started'))
+                                        //     .catchError(
+                                        //         (error) => log('Failed to start call: $error'));
 
-                                    //     Navigator.push(
-                                    //       context,
-                                    //       MaterialPageRoute(
-                                    //         builder: (context) => CallScreen(call: call),
-                                    //       ),
-                                    //     );
-                                    // } catch (e) {
-                                    //   debugPrint('Error joining or creating call: $e');
-                                    //   debugPrint(e.toString());
-                                    // }
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => CallScreen(call: call),
+                                          ),
+                                        );
+                                    } catch (e) {
+                                      debugPrint('Error joining or creating call: $e');
+                                      debugPrint(e.toString());
+                                    }
                                   },
                                   child:
                                       buildCustomIcon(HeroIcons.phone, size: config.appHeight(2.5)),
                                 )),
-                                // Expanded(
-                                //     child: buildCustomIcon(HeroIcons.video_camera,
-                                //         size: config.appHeight(2.5))),
+                                Expanded(
+                                    child: buildCustomIcon(HeroIcons.video_camera,
+                                        size: config.appHeight(2.5))),
                                 Expanded(
                                     child: GestureDetector(
                                   onTap: () {
@@ -448,62 +448,62 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
 //         );
 //   }
 // }
-// class CallScreen extends StatefulWidget {
-//   final stream.Call call;
+class CallScreen extends StatefulWidget {
+  final stream.Call call;
 
-//   const CallScreen({
-//     Key? key,
-//     required this.call,
-//   }) : super(key: key);
+  const CallScreen({
+    Key? key,
+    required this.call,
+  }) : super(key: key);
 
-//   @override
-//   State<CallScreen> createState() => _CallScreenState();
-// }
+  @override
+  State<CallScreen> createState() => _CallScreenState();
+}
 
-// class _CallScreenState extends State<CallScreen> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: stream.StreamCallContainer(
-//         call: widget.call,
-//         onLeaveCallTap: () async {
-//           await widget.call.leave();
-//           Navigator.pop(context);
-//         },
-//         callContentBuilder: (
-//           BuildContext context,
-//           stream.Call call,
-//           stream.CallState callState,
-//         ) {
-//           return stream.StreamCallContent(
-//             call: call,
-//             callState: callState,
-//             callControlsBuilder: (
-//               BuildContext context,
-//               stream.Call call,
-//               stream.CallState callState,
-//             ) {
-//               final localParticipant = callState.localParticipant!;
-//               return stream.StreamCallControls(
-//                 options: [
-//                   stream.FlipCameraOption(
-//                     call: call,
-//                     localParticipant: localParticipant,
-//                   ),
-//                   stream.ToggleMicrophoneOption(
-//                     call: call,
-//                     localParticipant: localParticipant,
-//                   ),
-//                   stream.ToggleCameraOption(
-//                     call: call,
-//                     localParticipant: localParticipant,
-//                   ),
-//                 ],
-//               );
-//             },
-//           );
-//         },
-//       ),
-//     );
-//   }
-// }
+class _CallScreenState extends State<CallScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: stream.StreamCallContainer(
+        call: widget.call,
+        onLeaveCallTap: () async {
+          await widget.call.leave();
+          Navigator.pop(context);
+        },
+        callContentBuilder: (
+          BuildContext context,
+          stream.Call call,
+          stream.CallState callState,
+        ) {
+          return stream.StreamCallContent(
+            call: call,
+            callState: callState,
+            callControlsBuilder: (
+              BuildContext context,
+              stream.Call call,
+              stream.CallState callState,
+            ) {
+              final localParticipant = callState.localParticipant!;
+              return stream.StreamCallControls(
+                options: [
+                  stream.FlipCameraOption(
+                    call: call,
+                    localParticipant: localParticipant,
+                  ),
+                  stream.ToggleMicrophoneOption(
+                    call: call,
+                    localParticipant: localParticipant,
+                  ),
+                  stream.ToggleCameraOption(
+                    call: call,
+                    localParticipant: localParticipant,
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
