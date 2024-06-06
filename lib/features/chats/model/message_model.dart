@@ -8,6 +8,7 @@ class MessageModel {
     this.type,
     this.sender,
     this.sentTime,
+    // this.callStatus
   });
 
   String? receiver;
@@ -16,6 +17,7 @@ class MessageModel {
   String? sender;
   Timestamp? sentTime;
   Type? type;
+  // bool? callStatus;
 
   MessageModel.fromJson(Map<String, dynamic> json) {
     receiver = json['receiver'].toString();
@@ -24,6 +26,7 @@ class MessageModel {
     type = json['type'].toString() == Type.image.name ? Type.image : Type.text;
     sender = json['sender'].toString();
     sentTime = json['sentTime'];
+    // callStatus = json['callStatus'];
   }
 
   Map<String, dynamic> toJson() {
@@ -34,6 +37,7 @@ class MessageModel {
     data['type'] = type?.name;
     data['sender'] = sender;
     data['sentTime'] = sentTime;
+    // data['callStatus'] = callStatus;
     return data;
   }
 }

@@ -67,33 +67,36 @@ import 'package:dev_chat/core/api/firebase_request.dart';
 import 'package:dev_chat/core/constants/encryption_services.dart';
 import 'package:dev_chat/core/widgets/common/loading_dialog.dart';
 import 'package:dev_chat/features/dashboard/presentation/home_screen/model/chat_user_model._response.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../core/api/token_services.dart';
 import '../model/message_model.dart';
 
 class ChatController extends GetxController {
+  void onInit() {
+    super.onInit();
+  }
+
+  String token = '';
+  String callId = '';
+  void generatetoken(String userId) {
+    token = generateJwtToken(userId);
+    log(token);
+  }
+
+  void generateCallId(String userId) {
+    callId = generateUserCallId(userId);
+    log(token);
+  }
+
   final TextEditingController messageController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
   File? pickedImage;
   List<File> multiImage = [];
   bool isUserMessage = false;
   bool focus = false;
-
-  // final List<Map<String, dynamic>> messages = [
-  //   {'isUserMessage': true, 'message': 'Hello!', 'isImage': false},
-  //   {'isUserMessage': false, 'message': 'Hi there!', 'isImage': false},
-  // ];
-
-  // void chatUpdate(String message) {
-  //   if (message.isNotEmpty) {
-  //     messages.add({'isUserMessage': true, 'message': message, 'isImage': false});
-  //     messageController.clear();
-  //     update();
-  //   }
-  // }
 
   Future<void> pickGallaryImage(BuildContext context, ChatUserResponseModel user) async {
     final multiImage = await _picker.pickMultiImage(imageQuality: 100, limit: 5);
@@ -105,11 +108,6 @@ class ChatController extends GetxController {
           File(element.path),
         );
       }
-      // messages.add({
-      //   'isUserMessage': true,
-      //   'message': pickedImage,
-      //   'isImage': true,
-      // });
 
       focus = true;
       update();
@@ -122,11 +120,6 @@ class ChatController extends GetxController {
       for (var element in multiImage) {
         return File(element.path);
       }
-      // messages.add({
-      //   'isUserMessage': true,
-      //   'message': pickedImage,
-      //   'isImage': true,
-      // });
 
       focus = true;
       update();
@@ -143,11 +136,7 @@ class ChatController extends GetxController {
         user,
         File(pickedFile.path),
       );
-      // messages.add({
-      //   'isUserMessage': true,
-      //   'message': pickedImage,
-      //   'isImage': true,
-      // });
+
       focus = true;
       update();
     }
@@ -183,6 +172,7 @@ class ChatController extends GetxController {
 
     update();
   }
+
   Future<void> editMessage(
     BuildContext context,
     MessageModel message,
@@ -200,7 +190,6 @@ class ChatController extends GetxController {
 
     update();
   }
-
 
   void dispose() {
     messageController.dispose();

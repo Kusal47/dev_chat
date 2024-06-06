@@ -28,8 +28,24 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+ 
   @override
   void initState() {
+    NotificationClass().getFirebaseMessagingToken();
+    Get.put(AuthController());
+    // SystemChannels.lifecycle.setMessageHandler((message) {
+    //   if (FirebaseRequest().authHelper.user != null) {
+    //     if (message.toString().contains('resume')) {
+    //       FirebaseRequest().updateActiveStatus(true);
+    //     }
+    //     if (message.toString().contains('pause')) {
+    //       FirebaseRequest().updateActiveStatus(false);
+    //     }
+    //   }
+
+    //   return Future.value(message);
+    // });
+
     super.initState();
   }
 
@@ -59,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     readOnly: true,
                     title: 'Search Friends',
                     onTap: () {
-                      Get.toNamed(Routes.searchScreen,arguments: controller.userList);
+                      Get.toNamed(Routes.searchScreen, arguments: controller.userList);
                       // Get.to(() => SearchScreen(userLists: controller.userList));
                     },
                     onSaved: (e) {},
@@ -70,13 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       builder: (context, snapshot) {
                         switch (snapshot.connectionState) {
                           case ConnectionState.waiting:
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
                           case ConnectionState.none:
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
                           case ConnectionState.active:
                           case ConnectionState.done:
                             final data = snapshot.data?.docs;
@@ -100,12 +110,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             } else {
                               return const Center(child: Text('No User Found'));
                             }
-                          default:
-                            return const Center(child: Text('Something went wrong'));
                         }
                       },
                     ),
                   ),
+               
                 ],
               ),
             );

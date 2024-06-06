@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dev_chat/core/constants/validators.dart';
 import 'package:dev_chat/core/widgets/common/base_widget.dart';
 import 'package:dev_chat/core/widgets/common/buttons.dart';
+import 'package:dev_chat/core/widgets/common/cached_network_image.dart';
 import 'package:dev_chat/core/widgets/common/text_form_field.dart';
 import 'package:dev_chat/features/profile/controller/profile_controller.dart';
 import 'package:flutter/cupertino.dart';
@@ -82,19 +83,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 : Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: decryptedImage != null && decryptedImage.isNotEmpty
-                                        ? ClipRRect(
-                                            borderRadius: BorderRadius.circular(50),
-                                            child: CachedNetworkImage(
-                                              width: 100,
-                                              height: 100,
-                                              fit: BoxFit.cover,
-                                              imageUrl: decryptedImage,
-                                              placeholder: (context, url) => const CircleAvatar(
-                                                  child: Icon(CupertinoIcons.person)),
-                                              errorWidget: (context, url, error) =>
-                                                  const CircleAvatar(
-                                                      child: Icon(CupertinoIcons.person)),
-                                            ))
+                                        ? CustomCachedImage(
+                                            width: 100,
+                                            height: 100,
+                                            imageUrl: decryptedImage,
+                                          )
                                         : const CircleAvatar(
                                             radius: 50,
                                             child: Icon(

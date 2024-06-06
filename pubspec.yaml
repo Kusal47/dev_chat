@@ -37,6 +37,13 @@ dependencies:
   googleapis_auth: ^1.6.0
   flutter_launcher_icons: ^0.13.1
   encrypt: ^5.0.3
+  image_gallery_saver: ^2.0.3
+  # stream_video: ^0.4.2
+  # stream_video_flutter: ^0.4.2
+  dart_jsonwebtoken: ^2.14.0
+  # zego_uikit_signaling_plugin: ^2.7.10
+  # zego_uikit_prebuilt_call: ^4.11.3
+  # stream_video_push_notification: ^0.4.2
 
 dev_dependencies:
   flutter_test:
