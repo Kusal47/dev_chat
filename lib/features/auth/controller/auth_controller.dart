@@ -51,4 +51,6 @@ class AuthController extends GetxController {
 
     showSuccessToast("Logout Successfull !!");
   }
+
+  
 }

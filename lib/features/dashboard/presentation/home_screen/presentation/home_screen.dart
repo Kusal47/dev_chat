@@ -1,12 +1,14 @@
 import 'dart:developer';
 
 import 'package:dev_chat/core/api/firebase_request.dart';
+import 'package:dev_chat/core/resources/colors.dart';
 import 'package:dev_chat/core/resources/ui_assets.dart';
 import 'package:dev_chat/core/routes/app_pages.dart';
 import 'package:dev_chat/core/widgets/common/base_widget.dart';
 import 'package:dev_chat/core/widgets/custom/chat_tiles.dart';
 import 'package:dev_chat/core/widgets/custom/search_bar.dart';
 import 'package:dev_chat/features/auth/controller/auth_controller.dart';
+import 'package:dev_chat/features/chats/controller/chat_controller.dart';
 import 'package:dev_chat/features/chats/model/message_model.dart';
 import 'package:dev_chat/features/dashboard/presentation/home_screen/controller/home_controller.dart';
 import 'package:dev_chat/features/dashboard/presentation/home_screen/model/chat_user_model._response.dart';
@@ -17,6 +19,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../../core/api/notification._api.dart';
+import '../../../../../core/widgets/custom/list_tiles.dart';
 import '../../../../search/presentation/search_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -27,7 +30,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
- 
   @override
   void initState() {
     NotificationClass().getFirebaseMessagingToken();
@@ -63,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                     child: SvgPicture.asset(
                       UIAssets.appLogo,
-                      colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                      colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                     )),
                 title: const Text('devChat'),
                 centerTitle: true,
@@ -101,8 +103,66 @@ class _HomeScreenState extends State<HomeScreen> {
                                 itemCount: controller.userList.length,
                                 itemBuilder: (context, index) {
                                   final user = controller.userList[index];
-                                  return CustomChatTiles(
-                                    user: user,
+                                  return InkWell(
+                                    onLongPress: () {
+                                      showDialog(
+                                          context: context,
+                                          builder: (_) {
+                                            return AlertDialog(
+                                              titlePadding: EdgeInsets.zero,
+                                              actionsPadding: EdgeInsets.zero,
+                                              contentPadding: EdgeInsets.zero,
+                                              content: Container(
+                                                color: backgroundColor,
+                                                height: Get.height * 0.3,
+                                                width: Get.width * 0.3,
+                                                child: Column(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                                  children: [
+                                                    ListTilesCustom(
+                                                      leadingWidget: const Icon(
+                                                        Icons.delete,
+                                                        color: Colors.red,
+                                                      ),
+                                                      onTap: () {
+                                                        controller.removeUser(
+                                                            context, user.id.toString());
+                                                      },
+                                                      text: 'Unfollow',
+                                                    ),
+                                                    ListTilesCustom(
+                                                      leadingWidget: const Icon(
+                                                        Icons.block,
+                                                        color: Colors.red,
+                                                      ),
+                                                      onTap: () {
+                                                        Get.put(ChatController()).blockedUser(
+                                                            context, user.id.toString(), false);
+                                                      },
+                                                      text: 'Block',
+                                                    ),
+                                                    ListTilesCustom(
+                                                      leadingWidget: const Icon(
+                                                        Icons.report,
+                                                        color: Colors.red,
+                                                      ),
+                                                      onTap: () {
+                                                        // controller
+                                                        //     .followUser(user);
+                                                        // Get.back();
+                                                      },
+                                                      text: 'Report',
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          });
+                                    },
+                                    child: CustomChatTiles(
+                                      user: user,
+                                    ),
                                   );
                                 },
                               );
@@ -113,7 +173,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                     ),
                   ),
-               
                 ],
               ),
             );

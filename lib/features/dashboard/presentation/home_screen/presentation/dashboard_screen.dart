@@ -6,7 +6,7 @@ import 'package:icons_plus/icons_plus.dart';
 
 import '../../../../../core/resources/colors.dart';
 import '../../../../people_suggestion/presentation/people_suggestion.dart';
-import '../../app_setting.dart';
+import '../../../../more/presentation/app_setting.dart';
 import 'home_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -35,7 +35,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           body: IndexedStack(
             //key: ValueKey<int>(controller.currentIndex),
             index: controller.currentIndex,
-            children:const [
+            children: const [
               HomeScreen(),
               PeopleScreen(),
               AppSetting(),

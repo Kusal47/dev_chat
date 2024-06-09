@@ -14,12 +14,22 @@ import '../../routes/app_pages.dart';
 
 class CustomChatTiles extends StatelessWidget {
   final ChatUserResponseModel user;
+  
+  final Color? iconColor;
 
   const CustomChatTiles(
-      {super.key, this.isSuggestion = false, this.onTap, this.onAddUser, required this.user});
+      {super.key,
+      this.isSuggestion = false,
+      this.blockedUser = false,
+      this.onTap,
+      this.onAddUser,
+      this.unBlockedUser,
+      required this.user, this.iconColor});
   final bool isSuggestion;
+  final bool blockedUser;
   final Function()? onTap;
   final Function()? onAddUser;
+  final Function()? unBlockedUser;
 
   @override
   Widget build(BuildContext context) {
@@ -55,14 +65,13 @@ class CustomChatTiles extends StatelessWidget {
 
                       return ListTilesWidget(
                         image: decryptedImage,
-                        onTap: isSuggestion
+                        onTap: isSuggestion || blockedUser
                             ? null
                             : onTap ??
                                 () {
                                   Get.toNamed(
                                     Routes.chat,
-                                    arguments: 
-                                      user, 
+                                    arguments: user,
                                   );
                                 },
                         radius: 30,
@@ -76,8 +85,13 @@ class CustomChatTiles extends StatelessWidget {
                         dateTime: messageModel?.sentTime != null
                             ? DateFormatterUtils.formatTime(messageModel?.sentTime)
                             : '',
-                        trailIcon: isSuggestion ? Bootstrap.person_add : null,
-                        onAddUser: onAddUser,
+                        trailIcon: isSuggestion
+                            ? Bootstrap.person_add
+                            : blockedUser
+                                ? TeenyIcons.minus_circle
+                                : null,
+                        onAddUser:isSuggestion? onAddUser:unBlockedUser,
+                        iconColor: iconColor,
                       );
                     });
               })),

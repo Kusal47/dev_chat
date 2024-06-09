@@ -14,6 +14,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import '../../api/firebase_request.dart';
 import '../../constants/date_formatter.dart';
 import '../../constants/encryption_services.dart';
 import 'custom_options_widget.dart';
@@ -75,7 +76,7 @@ Widget receivedMessage(MessageModel message) {
   );
 }
 
-Widget sentMessage(BuildContext context, MessageModel message) {
+Widget sentMessage(BuildContext context, MessageModel message, bool isBlockedUser) {
   // if (message.sender != AuthHelper().user!.uid) {
   //   if (message.read != null && message.read!.isEmpty) {
   //     FirebaseRequest().updateMessageReadStatus(message);

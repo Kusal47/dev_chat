@@ -1,16 +1,15 @@
 import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dev_chat/core/api/firebase_apis.dart';
 import 'package:dev_chat/core/resources/colors.dart';
 import 'package:dev_chat/core/routes/app_pages.dart';
 import 'package:dev_chat/core/widgets/common/base_widget.dart';
 import 'package:dev_chat/core/widgets/common/text_form_field.dart';
+import 'package:dev_chat/core/widgets/common/toast.dart';
 import 'package:dev_chat/core/widgets/custom/chat_message_boxes.dart';
 import 'package:dev_chat/features/chats/controller/chat_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:icons_plus/icons_plus.dart';
@@ -22,6 +21,8 @@ import '../../../core/widgets/common/cached_network_image.dart';
 import '../../../core/widgets/common/custom_widget.dart';
 import '../../dashboard/presentation/home_screen/model/chat_user_model._response.dart';
 import '../model/message_model.dart';
+import '../widgets/incoming_call_alert.dart';
+import 'call_screen.dart';
 
 class ChatConversationScreen extends StatefulWidget {
   const ChatConversationScreen({
@@ -39,21 +40,11 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
   @override
   void initState() {
     Get.put(ChatController());
-    Get.put(ChatController()).generatetoken(AuthHelper().user!.uid);
-    Get.put(ChatController()).generateCallId(widget.user.id.toString());
+    Get.find<ChatController>().generatetoken(AuthHelper().user!.uid);
+    Get.find<ChatController>().generateCallId(widget.user.id.toString());
+    Get.find<ChatController>().getChatUserBlockedList(widget.user.id.toString());
 
     super.initState();
-    stream.StreamVideo.reset();
-    final client = stream.StreamVideo(
-      '73u4jjq2tunh', //getStream api key
-      user: stream.User.regular(
-          userId: AuthHelper().user!.uid, //current user id
-
-          role: 'user',
-          name: widget.user.name),
-      userToken: Get.find<ChatController>().token, // token of current user logged in
-      // 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiWmFtX1dlc2VsbCIsImlzcyI6Imh0dHBzOi8vcHJvbnRvLmdldHN0cmVhbS5pbyIsInN1YiI6InVzZXIvWmFtX1dlc2VsbCIsImlhdCI6MTcxNzU2NTIzMywiZXhwIjoxNzE4MTcwMDM4fQ.WTyCEra6haM66h7aqUeK84lObnNLNxilxrkn7cqZB-0',
-    );
   }
 
   final formKey = GlobalKey<FormState>();
@@ -81,7 +72,7 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
-                            flex: 2,
+                            flex: 3,
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
@@ -161,7 +152,8 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
                                         //                   widget.user.lastActive.toString()),
                                         //       style: customTextStyle(fontSize: 11)),
                                         // ),
-                                        widget.user.isOnline == true
+                                        widget.user.isOnline == true &&
+                                                controller.isBlockedUser == false
                                             ? Text("Active", style: customTextStyle(fontSize: 12))
                                             : Text("Offline", style: customTextStyle(fontSize: 12)),
                                       ],
@@ -178,63 +170,71 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
                                 Expanded(
                                     child: GestureDetector(
                                   onTap: () async {
-                                    log(AuthHelper().user!.uid);
-                                    log(widget.user.id.toString());
-                                    // ZegoSendCallInvitationButton(invitees: [
-                                    //   ZegoUIKitUser(
-                                    //       id: widget.user.id.toString(),
-                                    //       name: widget.user.name.toString()),
-                                    // ], isVideoCall: true);
-                                    // Navigator.push(
-                                    //   context,
-                                    //   MaterialPageRoute(builder: (context) {
-                                    //     return CallPage(callID: Get.find<ChatController>().callId);
-                                    //   }),
-                                    // );
-                                    try {
+                                    if (controller.isBlockedUser == false) {
+                                      log("Calling to ..." + widget.user.username.toString());
+
+                                      try {
                                         var call = stream.StreamVideo.instance.makeCall(
                                           callType: stream.StreamCallType(),
                                           id: Get.find<ChatController>().callId,
                                         );
-
-                                        await call.getOrCreate(ringing: true, notify: true);
-
-                                        // FirebaseFirestore.instance
-                                        //     .collection('calls')
-                                        //     .doc(Get.find<ChatController>().callId)
-                                        //     .set({
-                                        //       'callerId': AuthHelper().user!.uid,
-                                        //       'receiverId': widget.user.id,
-                                        //       'status': 'ringing',
-                                        //     })
-                                        //     .then((value) => log('Call started'))
-                                        //     .catchError(
-                                        //         (error) => log('Failed to start call: $error'));
+                                        controller.startACall(
+                                            widget.user, Get.find<ChatController>().callId);
+                                        await call.getOrCreate(
+                                          ringing: true,
+                                          notify: true,
+                                          memberIds: [
+                                            widget.user.name.toString(),
+                                          ],
+                                        );
 
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) => CallScreen(call: call),
+                                            builder: (context) =>
+                                                CallScreen(call: call, user: widget.user),
                                           ),
                                         );
-                                    } catch (e) {
-                                      debugPrint('Error joining or creating call: $e');
-                                      debugPrint(e.toString());
+                                      } catch (e) {
+                                        debugPrint('Error joining or creating call: $e');
+                                        debugPrint(e.toString());
+                                      }
+                                    } else {
+                                      showErrorToast("Call Disabled");
                                     }
                                   },
                                   child:
-                                      buildCustomIcon(HeroIcons.phone, size: config.appHeight(2.5)),
+                                      buildCustomIcon(HeroIcons.phone, size: config.appHeight(3)),
                                 )),
-                                Expanded(
-                                    child: buildCustomIcon(HeroIcons.video_camera,
-                                        size: config.appHeight(2.5))),
+                                // Expanded(
+                                //     child: GestureDetector(
+                                //   onTap: () async {
+                                //     // log("message");
+                                //     // String callId =
+                                //     //     await controller.getCallId(widget.user.id.toString());
+                                //     // if (callId.isNotEmpty) {
+                                //     //   var call = stream.StreamVideo.instance
+                                //     //       .makeCall(callType: stream.StreamCallType(), id: callId);
+                                //     //   Navigator.push(
+                                //     //     context,
+                                //     //     MaterialPageRoute(
+                                //     //       builder: (context) => CallScreen(call: call),
+                                //     //     ),
+                                //     //   );
+                                //     // } else {
+                                //     //   showErrorToast("Call id not found");
+                                //     // }
+                                //   },
+                                //   child: buildCustomIcon(HeroIcons.video_camera,
+                                //       size: config.appHeight(2.5)),
+                                // )),
                                 Expanded(
                                     child: GestureDetector(
                                   onTap: () {
                                     Get.toNamed(Routes.chatSettings, arguments: widget.user);
                                   },
                                   child: buildCustomIcon(Bootstrap.info_circle,
-                                      size: config.appHeight(2.5)),
+                                      size: config.appHeight(3)),
                                 )),
                               ],
                             ),
@@ -272,7 +272,7 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
                                 itemBuilder: (context, index) {
                                   final message = controller.messagesList[index];
 
-                                  return sentMessage(context, message);
+                                  return sentMessage(context, message, controller.isBlockedUser);
                                 },
                               ),
                             );
@@ -328,182 +328,122 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
                 config.verticalSpaceCustom(0.15),
               ],
             ),
-            bottomSheet: Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Form(
-                key: formKey,
-                child: Container(
-                  color: backgroundColor,
-                  child: Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: Container(
-                            decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                  width: 1,
-                                  color: dividerColor,
-                                )),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  flex: 3,
-                                  child: PrimaryFormField(
-                                    maxLines: null,
-                                    keyboardType: TextInputType.multiline,
-                                    contentPadding: const EdgeInsets.all(8),
-                                    focusedBorder: const OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                      width: 0,
-                                      color: Colors.transparent,
-                                    )),
-                                    enabledBorder: const OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                      width: 0,
-                                      color: Colors.transparent,
-                                    )),
-                                    controller: controller.messageController,
-                                    hintTxt: 'Type a message...',
-                                    onSaved: (value) {
-                                      controller.messageController.text = value;
-                                    },
-                                  ),
-                                ),
-                                Expanded(
+            floatingActionButton: controller.isBlockedUser == true
+                ? const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text("You can't send message"),
+                  )
+                : null,
+            floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+            bottomSheet: controller.isBlockedUser == true
+                ? null
+                : Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Form(
+                      key: formKey,
+                      child: Container(
+                        color: backgroundColor,
+                        child: Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Flexible(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(
+                                        width: 1,
+                                        color: dividerColor,
+                                      )),
                                   child: Row(
                                     children: [
                                       Expanded(
-                                        child: InkWell(
-                                          onTap: () async {
-                                            await controller.clickImage(context, widget.user);
+                                        flex: 3,
+                                        child: PrimaryFormField(
+                                          readOnly: controller.isBlockedUser == true ? true : false,
+                                          maxLines: null,
+                                          keyboardType: TextInputType.multiline,
+                                          contentPadding: const EdgeInsets.all(8),
+                                          focusedBorder: const OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                            width: 0,
+                                            color: Colors.transparent,
+                                          )),
+                                          enabledBorder: const OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                            width: 0,
+                                            color: Colors.transparent,
+                                          )),
+                                          controller: controller.messageController,
+                                          hintTxt: controller.isBlockedUser == true
+                                              ? "You can't send messages."
+                                              : 'Type a message...',
+                                          onSaved: (value) {
+                                            controller.messageController.text = value;
                                           },
-                                          child: buildCustomIcon(Bootstrap.camera,
-                                              size: 25, color: primaryColor),
                                         ),
                                       ),
                                       Expanded(
-                                        child: InkWell(
-                                            onTap: () async {
-                                              await controller.pickGallaryImage(
-                                                  context, widget.user);
-                                            },
-                                            child: buildCustomIcon(Bootstrap.image,
-                                                size: 25, color: primaryColor)),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: InkWell(
+                                                onTap: () async {
+                                                  if (controller.isBlockedUser == false) {
+                                                    await controller.clickImage(
+                                                        context, widget.user);
+                                                  }
+                                                },
+                                                child: buildCustomIcon(Bootstrap.camera,
+                                                    size: 25, color: primaryColor),
+                                              ),
+                                            ),
+                                            Expanded(
+                                              child: InkWell(
+                                                  onTap: () async {
+                                                    if (controller.isBlockedUser == false) {
+                                                      await controller.pickGallaryImage(
+                                                          context, widget.user);
+                                                    }
+                                                  },
+                                                  child: buildCustomIcon(Bootstrap.image,
+                                                      size: 25, color: primaryColor)),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ],
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                              GestureDetector(
+                                  onTap: () {
+                                    if (controller.isBlockedUser == false) {
+                                      if (formKey.currentState!.validate()) {
+                                        FocusScope.of(context).unfocus();
+                                        if (controller.messageController.text.isNotEmpty) {
+                                          controller.sendMessage(widget.user,
+                                              controller.messageController.text, Type.text);
+                                        }
+                                      }
+                                    }
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: buildCustomIcon(Bootstrap.send,
+                                        size: 25, color: primaryColor),
+                                  )),
+                            ],
                           ),
                         ),
-                        GestureDetector(
-                            onTap: () {
-                              if (formKey.currentState!.validate()) {
-                                FocusScope.of(context).unfocus();
-                                if (controller.messageController.text.isNotEmpty) {
-                                  controller.sendMessage(
-                                      widget.user, controller.messageController.text, Type.text);
-                                }
-                              }
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: buildCustomIcon(Bootstrap.send, size: 25, color: primaryColor),
-                            )),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              ),
-            ),
           ),
         );
       });
     });
-  }
-}
-
-// class CallPage extends StatelessWidget {
-//   const CallPage({Key? key, required this.callID}) : super(key: key);
-//   final String callID;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     User user = FirebaseAuth.instance.currentUser!;
-//     return ZegoUIKitPrebuiltCall(
-//         appID: 1991925933, // Fill in the appID that you get from ZEGOCLOUD Admin Console.
-//         appSign:
-//             "c16e9be110bb522d16f99a0b7d773180f86e58ceecbf66dd8de06513542f76bd", // Fill in the appSign that you get from ZEGOCLOUD Admin Console.
-//         userID: user.uid,
-//         userName: user.displayName.toString(),
-//         callID: callID,
-//         // You can also use groupVideo/groupVoice/oneOnOneVoice to make more types of calls.
-//         config: ZegoUIKitPrebuiltCallConfig.oneOnOneVoiceCall()
-//         // ..onOnlySelfInRoom = () => Navigator.of(context).pop(),
-//         );
-//   }
-// }
-class CallScreen extends StatefulWidget {
-  final stream.Call call;
-
-  const CallScreen({
-    Key? key,
-    required this.call,
-  }) : super(key: key);
-
-  @override
-  State<CallScreen> createState() => _CallScreenState();
-}
-
-class _CallScreenState extends State<CallScreen> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: stream.StreamCallContainer(
-        call: widget.call,
-        onLeaveCallTap: () async {
-          await widget.call.leave();
-          Navigator.pop(context);
-        },
-        callContentBuilder: (
-          BuildContext context,
-          stream.Call call,
-          stream.CallState callState,
-        ) {
-          return stream.StreamCallContent(
-            call: call,
-            callState: callState,
-            callControlsBuilder: (
-              BuildContext context,
-              stream.Call call,
-              stream.CallState callState,
-            ) {
-              final localParticipant = callState.localParticipant!;
-              return stream.StreamCallControls(
-                options: [
-                  stream.FlipCameraOption(
-                    call: call,
-                    localParticipant: localParticipant,
-                  ),
-                  stream.ToggleMicrophoneOption(
-                    call: call,
-                    localParticipant: localParticipant,
-                  ),
-                  stream.ToggleCameraOption(
-                    call: call,
-                    localParticipant: localParticipant,
-                  ),
-                ],
-              );
-            },
-          );
-        },
-      ),
-    );
   }
 }

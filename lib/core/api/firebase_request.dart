@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
@@ -6,26 +5,22 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dev_chat/core/api/firebase_apis.dart';
 import 'package:dev_chat/core/api/notification._api.dart';
 import 'package:dev_chat/core/constants/capitalize_first_letters.dart';
-import 'package:dev_chat/core/constants/date_formatter.dart';
 import 'package:dev_chat/core/widgets/common/toast.dart';
 import 'package:dev_chat/features/auth/register/model/register_param.dart';
 import 'package:dev_chat/features/chats/model/message_model.dart';
 import 'package:dev_chat/features/dashboard/presentation/home_screen/model/chat_user_model._response.dart';
-import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/intl.dart';
+import 'package:stream_video_flutter/stream_video_flutter.dart' as str;
 
 import '../../features/auth/login/model/login_params.dart';
 import '../../features/profile/model/update_params.dart';
 import '../constants/encryption_services.dart';
-import '../constants/storage_constants.dart';
-import '../resources/secure_storage_functions.dart';
 import '../widgets/common/loading_dialog.dart';
 import 'network_info.dart';
 
@@ -33,7 +28,7 @@ class FirebaseRequest {
   final networkInfo = Get.find<NetworkInfo>();
   final authHelper = Get.find<AuthHelper>();
 
- Future<User?> loginWithEmailAndPassword(LoginParams loginParams) async {
+  Future<User?> loginWithEmailAndPassword(LoginParams loginParams) async {
     if (await networkInfo.isConnected) {
       try {
         UserCredential userCredential = await authHelper.loginUser(
@@ -97,8 +92,6 @@ class FirebaseRequest {
 
   Future<GoogleSignInAccount?> signInWithGoogle(BuildContext context) async {
     if (await networkInfo.isConnected) {
-      showLoadingDialog(context);
-
       try {
         final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
         if (googleUser == null) {
@@ -136,10 +129,10 @@ class FirebaseRequest {
               'address': '',
               'phone_number': '',
               'followers': FieldValue.arrayUnion([]),
+              'blockedUser': FieldValue.arrayUnion([]),
             });
           }
 
-          hideLoadingDialog(context);
           return googleUser;
         } else {
           showErrorToast('User is null after sign-in');
@@ -147,8 +140,6 @@ class FirebaseRequest {
       } catch (e) {
         print('Error during Google Sign-In: $e');
         showErrorToast('An error occurred during Google Sign-In. Please try again.');
-      } finally {
-        hideLoadingDialog(context);
       }
     } else {
       showErrorToast("Network Error");
@@ -236,8 +227,12 @@ class FirebaseRequest {
 
   Stream<QuerySnapshot<Map<String, dynamic>>> getAllUserData() async* {
     List<String> followers = await getCurrentUserFollowers();
+    List<String> blockedUser = await getCurrentUserBlockedList();
     User? currentUser = authHelper.auth.currentUser;
-    List<String> excludeIds = List.from(followers)..add(currentUser?.uid ?? '');
+    List<String> excludeIds = List.from(followers)
+      ..addAll(blockedUser)
+      ..add(currentUser?.uid ?? '');
+
     if (excludeIds.isNotEmpty) {
       yield* authHelper.storage
           .collection('chatUsers')
@@ -284,21 +279,46 @@ class FirebaseRequest {
     return [];
   }
 
-//   Future<List<String>> getCurrentUserFollowers() async {
-//   String currentUserId =authHelper.user!.uid;
-//   if (currentUserId != null) {
-//     DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
-//         .collection('chatUsers')
-//         .doc(currentUserId)
-//         .get();
-//     if (userSnapshot.exists) {
-//       Map<String, dynamic> userData = userSnapshot.data()!;
-//       List<String> followers = List<String>.from(userData['followers'] ?? []);
-//       return followers;
-//     }
-//   }
-//   return [];
-// }
+  Future<void> removeFromFollowerList(String followerId) async {
+    User? currentUser = authHelper.auth.currentUser;
+    if (currentUser != null) {
+      DocumentSnapshot userSnapshot =
+          await authHelper.storage.collection('chatUsers').doc(currentUser.uid).get();
+      // DocumentSnapshot followedUserSnapshot =
+      //     await authHelper.storage.collection('chatUsers').doc(followerId).get();
+
+      if (userSnapshot.exists) {
+        Map<String, dynamic> userData = userSnapshot.data() as Map<String, dynamic>;
+        List<String> followers = List<String>.from(userData['followers'] ?? []);
+
+        if (followers.contains(followerId)) {
+          followers.remove(followerId);
+
+          await authHelper.storage.collection('chatUsers').doc(currentUser.uid).update({
+            'followers': followers,
+          });
+        }
+        //  else if (followedUserSnapshot.exists) {
+        //   Map<String, dynamic> followedUserData =
+        //       followedUserSnapshot.data() as Map<String, dynamic>;
+        //   List<String> followerOfFollower = List<String>.from(followedUserData['followers'] ?? []);
+
+        //   if (followerOfFollower.contains(currentUser.uid)) {
+        //     followerOfFollower.remove(currentUser.uid);
+
+        //     await authHelper.storage.collection('chatUsers').doc(followerId).update({
+        //       'followers': followerOfFollower,
+        //     });
+        //   }
+        // }
+        else {
+          print('User document does not exist.');
+        }
+      } else {
+        print('No authenticated user found.');
+      }
+    }
+  }
 
   Future<bool> addFollowedUserData(String userId) async {
     User? currentUser = authHelper.auth.currentUser;
@@ -312,6 +332,105 @@ class FirebaseRequest {
     } catch (e) {
       print('Error adding follower: $e');
       return false;
+    }
+  }
+
+  Future<bool> addBlockedUserData(String userId) async {
+    User? currentUser = authHelper.auth.currentUser;
+    if (currentUser == null) return false;
+
+    try {
+      await authHelper.storage.collection('chatUsers').doc(currentUser.uid).update({
+        'blockedUser': FieldValue.arrayUnion([userId])
+      });
+      return true;
+    } catch (e) {
+      print('Error adding follower: $e');
+      return false;
+    }
+  }
+
+  Future<List<String>> getCurrentUserBlockedList() async {
+    User? currentUser = authHelper.auth.currentUser;
+    if (currentUser != null) {
+      DocumentSnapshot userSnapshot =
+          await authHelper.storage.collection('chatUsers').doc(currentUser.uid).get();
+      if (userSnapshot.exists) {
+        Map<String, dynamic> userData = userSnapshot.data() as Map<String, dynamic>;
+        List<String> followers = List<String>.from(userData['blockedUser'] ?? []);
+        return followers;
+      }
+    }
+    return [];
+  }
+
+  Future<bool> getChatUserBlockedList(String userId) async {
+    User? currentUser = authHelper.auth.currentUser;
+    if (currentUser != null) {
+      DocumentSnapshot userSnapshot =
+          await authHelper.storage.collection('chatUsers').doc(userId).get();
+      if (userSnapshot.exists) {
+        Map<String, dynamic> userData = userSnapshot.data() as Map<String, dynamic>;
+        List<String> blockedUser = List<String>.from(userData['blockedUser'] ?? []);
+        if (blockedUser.contains(currentUser.uid)) {
+          log("blocked");
+          return true;
+        } else {
+          log("Unblocked");
+
+          return false;
+        }
+      }
+    }
+    return false;
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getBlockedUsersData() async* {
+    if (await networkInfo.isConnected) {
+      try {
+        List<String> blockedUser = await getCurrentUserBlockedList();
+        if (blockedUser.isNotEmpty) {
+          yield* authHelper.storage
+              .collection('chatUsers')
+              .where(FieldPath.documentId, whereIn: blockedUser)
+              .snapshots();
+        } else {
+          yield* const Stream.empty();
+        }
+      } catch (e) {
+        print('Error getting followed users: $e');
+        yield* const Stream.empty();
+      }
+    } else {
+      showErrorToast("Network Error");
+      yield* const Stream.empty();
+    }
+  }
+
+  Future<void> removeFromBlockedList(String followerId) async {
+    User? currentUser = authHelper.auth.currentUser;
+    if (currentUser != null) {
+      DocumentSnapshot userSnapshot =
+          await authHelper.storage.collection('chatUsers').doc(currentUser.uid).get();
+      // DocumentSnapshot followedUserSnapshot =
+      //     await authHelper.storage.collection('chatUsers').doc(followerId).get();
+
+      if (userSnapshot.exists) {
+        Map<String, dynamic> userData = userSnapshot.data() as Map<String, dynamic>;
+        List<String> followers = List<String>.from(userData['blockedUser'] ?? []);
+
+        if (followers.contains(followerId)) {
+          followers.remove(followerId);
+
+          await authHelper.storage.collection('chatUsers').doc(currentUser.uid).update({
+            'blockedUser': followers,
+          });
+        } else {
+          print('User document does not exist.');
+        }
+      } else {
+        print('No authenticated user found.');
+      }
     }
   }
 
@@ -407,8 +526,7 @@ class FirebaseRequest {
           read: '',
           type: type,
           sender: authHelper.user!.uid,
-          sentTime: time
-          );
+          sentTime: time);
 
       final ref = authHelper.storage.collection('chat/${chatId(chatUser.id.toString())}/messages');
       await ref.doc(time.toString()).set(message.toJson()).then((value) async {
@@ -417,7 +535,7 @@ class FirebaseRequest {
           ChatUserResponseModel? fetchedUser = await getCurrentUserInfo();
 
           await NotificationClass().sendPushNotification(
-              chatUser.pushToken.toString(), fetchedUser!.name.toString(), msg);
+              chatUser.pushToken.toString(), fetchedUser!.name.toString(), msg,chatUser:chatUser );
         }
       });
     } else {
@@ -502,27 +620,72 @@ class FirebaseRequest {
         .update({'msg': updatedMsg});
   }
 
-//   FirebaseMessaging fMessaging = FirebaseMessaging.instance;
+//Call Services
 
-//   Future<void> getFirebaseMessagingToken() async {
-//     await fMessaging.requestPermission();
+  // Future<void> leaveCall(
+  //   ChatUserResponseModel chatUser,
+  //   String callId,
+  // ) async {
+  //   final User? user = authHelper.user;
 
-//     await fMessaging.getToken().then((t) {
-//       if (t != null) {
-//     updatePushTokenInFirestore(authHelper.user!.uid, t);
-//         log('Push Token: $t');
-//       }
-//     });
-//   }
-//   Future<void> updatePushTokenInFirestore(String userId, String pushToken) async {
-//   try {
-//     await authHelper.storage.collection('chatUsers').doc(userId).update({
-//       'push_token': pushToken,
-//     });
-//     log('Push token updated successfully for user: $userId');
-//   } catch (e) {
-//     log('Error updating push token: $e');
-//     // showErrorToast('Error updating push token');
-//   }
-// }
+  //   if (user != null) {
+  //     await authHelper.storage.collection('callData').doc(chatUser.id).set({
+  //       'call_id': callId,
+  //       'start_time': Timestamp.now(),
+  //       'user_ids': FieldValue.arrayUnion([chatUser.id]),
+  //       'status': 'active',
+  //     });
+
+  //     ChatUserResponseModel? fetchedUser = await getCurrentUserInfo();
+
+  //     await NotificationClass().sendPushNotification(
+  //       chatUser.pushToken.toString(),
+  //       fetchedUser!.name.toString(),
+  //       'Call ended',
+  //       callId: callId,
+  //       chatUser: chatUser
+  //     );
+  //   }
+  // }
+
+  Future<void> startCall(
+    ChatUserResponseModel chatUser,
+    String callId,
+  ) async {
+    final User? user = authHelper.user;
+
+    if (user != null) {
+      await authHelper.storage.collection('callData').doc(chatUser.id).set({
+        'call_id': callId,
+        'start_time': Timestamp.now(),
+        'user_ids': FieldValue.arrayUnion([chatUser.id]),
+        'status': 'active',
+      });
+
+      ChatUserResponseModel? fetchedUser = await getCurrentUserInfo();
+
+      await NotificationClass().sendPushNotification(
+        chatUser.pushToken.toString(),
+        fetchedUser!.name.toString(),
+        '${fetchedUser.name.toString()} is calling you',
+        callId: callId,
+        chatUser: chatUser
+      );
+
+      // // Update status to active
+      // await authHelper.storage.collection('callData').doc(chatUser.id).update({
+      //   'status': 'active',
+      // });
+
+      // // Set a timer to update the call status to inactive after 45 seconds
+      // Future.delayed(Duration(seconds: 45), () async {
+      //   await authHelper.storage.collection('callData').doc(chatUser.id).update({
+      //     'status': 'inactive',
+      //   });
+
+      //   // Optionally, you can also handle any cleanup or UI updates here
+      //   log('Call status updated to inactive after 45 seconds');
+      // });
+    }
+  }
 }
