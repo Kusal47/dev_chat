@@ -10,7 +10,8 @@ class SearchBarWidget extends StatelessWidget {
       required this.onSaved,
       this.icon,
       this.readOnly = false,
-      this.onClearTap, this.controller});
+      this.onClearTap,
+      this.controller});
   final Function()? onTap;
   final Function()? onClearTap;
   final String? title;
@@ -25,6 +26,9 @@ class SearchBarWidget extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: PrimaryFormField(
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 10,
+        ),
         controller: controller,
         suffixIcon: GestureDetector(onTap: onClearTap, child: Icon(icon)),
         readOnly: readOnly,
