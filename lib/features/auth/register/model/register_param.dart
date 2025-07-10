@@ -21,6 +21,7 @@ class RegisterParams {
   bool? isOnline;
   String? pushToken;
   List? followers;
+  List? blockedUser;
 
   RegisterParams({
     this.id,
@@ -39,6 +40,7 @@ class RegisterParams {
     this.lastActive,
     this.isOnline,
     this.pushToken,
+    this.blockedUser,
   });
 
   Map<String, dynamic> toJson() {
@@ -61,6 +63,7 @@ class RegisterParams {
     data["is_online"] = isOnline ?? true;
     data["push_token"] = pushToken ?? '';
     data["followers"] = FieldValue.arrayUnion([]);
+    data["blockedUser"] = FieldValue.arrayUnion([]);
 
     return data;
   }

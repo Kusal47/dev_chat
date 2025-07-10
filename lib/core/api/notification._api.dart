@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:dev_chat/core/api/firebase_apis.dart';
 import 'package:dev_chat/core/api/firebase_request.dart';
 import 'package:dev_chat/core/widgets/common/toast.dart';
+import 'package:dev_chat/features/dashboard/presentation/home_screen/model/chat_user_model._response.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
@@ -45,7 +46,8 @@ class NotificationClass {
     }
   }
 
-  Future<void> sendPushNotification(String pushToken, String senderName, String message) async {
+  Future<void> sendPushNotification(String pushToken, String senderName, String message,
+      {String? callId, ChatUserResponseModel? chatUser}) async {
     try {
       final body = {
         "message": {
@@ -53,6 +55,10 @@ class NotificationClass {
           "notification": {
             "title": senderName,
             "body": message,
+          },
+          "data": {
+            "call_id": callId ?? '',
+            // 'user':chatUser?.toJson()
           },
         }
       };
@@ -84,4 +90,5 @@ class NotificationClass {
       log('\nsendPushNotificationE: $e');
     }
   }
+
 }

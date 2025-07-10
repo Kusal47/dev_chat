@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../../core/api/firebase_apis.dart';
+import '../../../../../core/widgets/common/loading_dialog.dart';
 import '../model/chat_user_model._response.dart';
 
 class HomeController extends GetxController {
@@ -73,9 +74,17 @@ class HomeController extends GetxController {
     update();
     // }
   }
-
-  void removeUser(String userId) {
-    addedUserIds.remove(userId);
-    update();
+void removeUser(BuildContext context, String userId) async {
+    showLoadingDialog(context);
+    try {
+      await firebaseRequest.removeFromFollowerList(userId);
+      hideLoadingDialog(context);
+      Get.offAllNamed(Routes.dashboard);
+      update();
+    } catch (e) {}
   }
+  // void removeUser(String userId) {
+  //   addedUserIds.remove(userId);
+  //   update();
+  // }
 }

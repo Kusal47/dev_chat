@@ -14,8 +14,10 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import '../../api/firebase_request.dart';
 import '../../constants/date_formatter.dart';
 import '../../constants/encryption_services.dart';
+import '../common/cached_network_image.dart';
 import 'custom_options_widget.dart';
 
 Widget receivedMessage(MessageModel message) {
@@ -51,18 +53,8 @@ Widget receivedMessage(MessageModel message) {
                             message.msg.toString(),
                             style: customTextStyle(fontSize: 14, color: Colors.white),
                           )
-                        : ClipRRect(
-                            borderRadius: BorderRadius.circular(15),
-                            child: CachedNetworkImage(
-                              imageUrl: message.msg.toString(),
-                              fit: BoxFit.cover,
-                              placeholder: (context, url) => const Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              ),
-                              errorWidget: (context, url, error) =>
-                                  const Icon(Icons.image, size: 70),
-                            ),
+                        : CustomCachedImage(
+                            imageUrl: message.msg.toString(),
                           ),
                   ),
                 ],
@@ -75,7 +67,7 @@ Widget receivedMessage(MessageModel message) {
   );
 }
 
-Widget sentMessage(BuildContext context, MessageModel message) {
+Widget sentMessage(BuildContext context, MessageModel message, bool isBlockedUser) {
   // if (message.sender != AuthHelper().user!.uid) {
   //   if (message.read != null && message.read!.isEmpty) {
   //     FirebaseRequest().updateMessageReadStatus(message);
@@ -129,18 +121,8 @@ Widget sentMessage(BuildContext context, MessageModel message) {
                                     color: Colors.white,
                                     overflow: TextOverflow.visible),
                               )
-                            : ClipRRect(
-                                borderRadius: BorderRadius.circular(15),
-                                child: CachedNetworkImage(
-                                  imageUrl: decryptMessage.toString(),
-                                  fit: BoxFit.cover,
-                                  placeholder: (context, url) => const Padding(
-                                    padding: EdgeInsets.all(8.0),
-                                    child: CircularProgressIndicator(strokeWidth: 2),
-                                  ),
-                                  errorWidget: (context, url, error) =>
-                                      const Icon(Icons.image, size: 70),
-                                ),
+                            : CustomCachedImage(
+                                imageUrl: decryptMessage.toString(),
                               ),
                       ),
                     ),

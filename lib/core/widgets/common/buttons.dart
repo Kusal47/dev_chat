@@ -40,11 +40,14 @@ class PrimaryButton extends StatelessWidget {
         ),
       ),
       onPressed: onPressed,
-      child: Text(label,
-          style: Theme.of(context).textTheme.bodyText2?.copyWith(
-              color: labelColor ?? Theme.of(context).scaffoldBackgroundColor,
-              fontSize: fontSize ?? 16,
-              fontWeight: labelWeight ?? FontWeight.w600)),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          color: labelColor ?? Theme.of(context).scaffoldBackgroundColor,
+          fontSize: fontSize ?? 16,
+          fontWeight: labelWeight ?? FontWeight.w600,
+        ),
+      ),
     );
   }
 }
@@ -71,15 +74,14 @@ class PrimaryTextButton extends StatelessWidget {
       onTap: onPressed,
       child: Text(
         label,
-        style: isSmallButton!
-            ? Theme.of(context)
-                .textTheme
-                .caption
-                ?.copyWith(color: labelColor ?? Theme.of(context).primaryColor)
-            : Theme.of(context)
-                .textTheme
-                .bodyText2
-                ?.copyWith(color: labelColor ?? Theme.of(context).primaryColor),
+        style:
+            isSmallButton!
+                ? Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: labelColor ?? Theme.of(context).primaryColor)
+                : Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: labelColor ?? Theme.of(context).primaryColor,
+                ),
       ),
     );
   }
@@ -98,19 +100,20 @@ class PrimaryOutlinedButton extends StatelessWidget {
   final Color? iconColor;
   final double? iconSize;
 
-  const PrimaryOutlinedButton(
-      {super.key,
-      this.radius,
-      this.width,
-      this.iconSize,
-      this.borderColor,
-      this.loadingWidget,
-      this.icon,
-      this.iconColor,
-      this.height,
-      this.titleColor,
-      required this.onPressed,
-      required this.title});
+  const PrimaryOutlinedButton({
+    super.key,
+    this.radius,
+    this.width,
+    this.iconSize,
+    this.borderColor,
+    this.loadingWidget,
+    this.icon,
+    this.iconColor,
+    this.height,
+    this.titleColor,
+    required this.onPressed,
+    required this.title,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -131,17 +134,15 @@ class PrimaryOutlinedButton extends StatelessWidget {
       onPressed: () {
         onPressed();
       },
-      child: loadingWidget ??
+      child:
+          loadingWidget ??
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               if (icon != null)
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
-                  child: SizedBox(
-                    width: iconSize ?? 15,
-                    child: icon,
-                  ),
+                  child: SizedBox(width: iconSize ?? 15, child: icon),
                 ),
               Text(title, style: TextStyle(color: borderColor ?? Theme.of(context).primaryColor)),
             ],
@@ -169,18 +170,14 @@ class PrimaryIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-            backgroundColor: Theme.of(context).primaryColor,
-            minimumSize: const Size(40, 40),
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(5)),
-            )),
-        child: Icon(
-          icon,
-          color: backgroundColor,
-          size: 30,
-        ));
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Theme.of(context).primaryColor,
+        minimumSize: const Size(40, 40),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5))),
+      ),
+      child: Icon(icon, color: backgroundColor, size: 30),
+    );
   }
 }
 

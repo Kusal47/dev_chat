@@ -16,6 +16,9 @@ abstract class Routes {
   static const searchScreen = _Paths.searchScreen;
   static const suggestion = _Paths.suggestion;
   static const chatSettings = _Paths.chatSettings;
+  static const blockedUser = _Paths.blockedUser;
+  static const callScreen = _Paths.callScreen;
+  static const incomingCall = _Paths.incomingCall;
 }
 
 abstract class _Paths {
@@ -31,4 +34,7 @@ abstract class _Paths {
   static const searchScreen = '/search-screen';
   static const suggestion = '/suggestion-screen';
   static const chatSettings = '/chatSettings-screen';
+  static const blockedUser = '/blockedUser-screen';
+  static const callScreen = '/call-screen';
+  static const incomingCall = '/incomingCall-screen';
 }

@@ -8,7 +8,9 @@ import 'package:get/get.dart';
 
 import '../../features/auth/forget_password/presentation/forget_password.dart';
 import '../../features/auth/login/presentation/login_screen.dart';
+import '../../features/chats/presentation/call_screen.dart';
 import '../../features/dashboard/presentation/home_screen/presentation/home_screen.dart';
+import '../../features/more/presentation/blocked_user_list_screen.dart';
 import '../../features/splash_screen/presentation/splash_screen.dart';
 part 'app_routes.dart';
 
@@ -62,11 +64,18 @@ class AppPages {
       ),
       arguments: Get.arguments,
     ),
-    // GetPage(
-    //   name: _Paths.login,
-    //   page: LoginScreen.new,
-    //   transition: Transition.fadeIn,
-    //   transitionDuration: const Duration(milliseconds: 1000),
-    // ),
+    GetPage(
+      name: _Paths.blockedUser,
+      page: BlockedUserListScreen.new,
+    ),
+
+  GetPage(
+      name: _Paths.callScreen,
+      page: () => CallScreen(
+        
+        call: Get.arguments,
+      ),
+    ),
+  
   ];
 }
