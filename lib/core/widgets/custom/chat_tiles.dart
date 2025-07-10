@@ -39,7 +39,7 @@ class CustomChatTiles extends StatelessWidget {
       child: Container(
           decoration: BoxDecoration(
             // borderRadius: BorderRadius.circular(40.0),
-            color: Colors.grey[50],
+            // color: Colors.grey[50],
             // border: Border.all(
             //   color: Colors.grey,
             //   width: 1.0,

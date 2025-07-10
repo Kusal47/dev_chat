@@ -3,10 +3,12 @@ import 'dart:io';
 import 'package:dev_chat/core/api/firebase_request.dart';
 import 'package:dev_chat/core/routes/app_pages.dart';
 import 'package:dev_chat/core/widgets/common/cached_network_image.dart';
+import 'package:dev_chat/core/widgets/common/custom_widget.dart';
 import 'package:dev_chat/features/profile/controller/profile_controller.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:icons_plus/icons_plus.dart';
 import '../../../core/constants/encryption_services.dart';
 import '../../../core/resources/colors.dart';
 import '../../../core/widgets/common/base_widget.dart';
@@ -28,6 +30,7 @@ class _AppSettingState extends State<AppSetting> {
   void initState() {
     Get.put(AuthController());
     Get.put(ProfileController());
+
     super.initState();
   }
 
@@ -63,6 +66,23 @@ class _AppSettingState extends State<AppSetting> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    // ThemeData().brightness == Brightness.light
+                                    //     ? Icon(HeroIcons.sun, color: Colors.amber, size: 30)
+                                    //     : Icon(HeroIcons.moon, color: Colors.white, size: 30)
+
+                                    IconButton(
+                                      icon: profileController.isDarkMode
+                                          ? Icon(HeroIcons.moon, color: Colors.white, size: 30)
+                                          : Icon(HeroIcons.sun, color: Colors.amber, size: 30),
+                                      onPressed: () {
+                                        profileController.toggleTheme();
+                                      },
+                                    )
+                                  ],
+                                ),
                                 decryptedImage != null && decryptedImage.isNotEmpty
                                     ? CustomCachedImage(
                                         imageUrl: decryptedImage.toString(),
@@ -88,16 +108,16 @@ class _AppSettingState extends State<AppSetting> {
                                               CupertinoIcons.person,
                                               size: 80,
                                             )),
-                                Text(
-                                  profileController.user.value.name ?? 'User',
-                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                      color: blackColor, fontSize: 14, fontWeight: FontWeight.w500),
-                                ),
-                                Text(
-                                  profileController.user.value.email ?? 'useremail@gmail.com',
-                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                      color: blackColor, fontSize: 14, fontWeight: FontWeight.w500),
-                                ),
+                                Text(profileController.user.value.name ?? 'User',
+                                    style: customTextStyle(
+                                        color: theme.textTheme.labelLarge?.color,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500)),
+                                Text(profileController.user.value.email ?? 'useremail@gmail.com',
+                                    style: customTextStyle(
+                                        color: theme.textTheme.labelLarge?.color,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500)),
                                 const SizedBox(
                                   height: 5,
                                 ),

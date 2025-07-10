@@ -6,7 +6,7 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.3.3 <4.0.0'
+  sdk: ^3.7.2
 
 dependencies:
   flutter:
@@ -22,7 +22,6 @@ dependencies:
   fluttertoast: ^8.2.5
   dio: ^5.4.3+1
   internet_connection_checker: ^1.0.0+1
-  device_preview: ^1.1.0
   flutter_hooks: ^0.20.5
   google_sign_in: ^6.2.1
   cloud_firestore: ^4.17.4
@@ -41,6 +40,7 @@ dependencies:
   # stream_video: ^0.4.2
   stream_video_flutter: ^0.4.2
   dart_jsonwebtoken: ^2.14.0
+  flutter_dotenv: ^5.2.1
   # zego_uikit_signaling_plugin: ^2.7.10
   # zego_uikit_prebuilt_call: ^4.11.3
   # stream_video_push_notification: ^0.4.2

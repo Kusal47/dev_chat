@@ -1,5 +1,6 @@
 import 'package:dev_chat/core/routes/app_pages.dart';
 import 'package:dev_chat/core/widgets/common/buttons.dart';
+import 'package:dev_chat/core/widgets/common/custom_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -29,7 +30,7 @@ class _IncomingCallAlertState extends State<IncomingCallAlert> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           image: DecorationImage(
               image: NetworkImage(
                   'https://th.bing.com/th/id/OIP.DoOqWGjiYMVAlJTXrt-axwHaNK?rs=1&pid=ImgDetMain'),
@@ -70,14 +71,15 @@ class _IncomingCallAlertState extends State<IncomingCallAlert> {
                         radius: 30,
                         child: Text(
                           widget.callerName[0].toUpperCase(),
-                          style: const TextStyle(fontSize: 24),
+                          style: customTextStyle(fontSize: 24, color: Colors.white),
                         ),
                       ),
                       SizedBox(width: Get.width * 0.04),
                       Expanded(
                         child: Text(
                           widget.callerName,
-                          style: const TextStyle(fontSize: 16),
+                          style: customTextStyle(
+                              fontSize: 16, color: Colors.black, fontWeight: FontWeight.w800),
                         ),
                       ),
                     ],

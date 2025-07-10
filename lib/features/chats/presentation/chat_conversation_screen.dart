@@ -86,39 +86,15 @@ class _ChatConversationScreenState extends State<ChatConversationScreen> {
                                   ),
                                 ),
                                 decryptedImage != null && decryptedImage.isNotEmpty
-                                    ? ClipRRect(
-                                        borderRadius: BorderRadius.circular(50),
-                                        child: CachedNetworkImage(
-                                          imageUrl: decryptedImage,
-                                          width: 40,
-                                          height: 40,
-                                          fit: BoxFit.cover,
-                                          placeholder: (context, url) => const CircleAvatar(
-                                            radius: 22,
-                                            child: Icon(Icons.person),
-                                          ),
-                                          errorWidget: (context, url, error) => const CircleAvatar(
-                                            radius: 22,
-                                            child: Icon(Icons.person),
-                                          ),
-                                        ),
+                                    ? CustomCachedImage(
+                                        imageUrl: decryptedImage,
+                                        width: 40,
+                                        height: 40,
                                       )
-                                    : ClipRRect(
-                                        borderRadius: BorderRadius.circular(50),
-                                        child: CachedNetworkImage(
-                                          height: 40,
-                                          width: 40,
-                                          fit: BoxFit.cover,
-                                          imageUrl: 'https://picsum.photos/200',
-                                          placeholder: (context, url) => const CircleAvatar(
-                                              radius: 50,
-                                              backgroundColor: primaryColor,
-                                              child: Icon(Icons.person)),
-                                          errorWidget: (context, url, error) => const CircleAvatar(
-                                              radius: 50,
-                                              backgroundColor: primaryColor,
-                                              child: Icon(Icons.person)),
-                                        ),
+                                    : CustomCachedImage(
+                                        height: 40,
+                                        width: 40,
+                                        imageUrl: 'https://picsum.photos/200',
                                       ),
                                 Padding(
                                   padding:

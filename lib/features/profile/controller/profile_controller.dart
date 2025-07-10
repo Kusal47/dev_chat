@@ -23,6 +23,14 @@ class ProfileController extends GetxController {
     loadUserData();
   }
 
+  var isDarkMode = false;
+
+  void toggleTheme() {
+    isDarkMode = !isDarkMode;
+    Get.changeThemeMode(isDarkMode ? ThemeMode.dark : ThemeMode.light);
+    update();
+  }
+
   loadUserData() async {
     ChatUserResponseModel? fetchedUser = await _firebaseRequest.getCurrentUserInfo();
     if (fetchedUser != null) {

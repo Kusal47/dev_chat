@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'core/api/core_bindings.dart';
@@ -16,7 +17,6 @@ import 'core/resources/app_theme.dart';
 import 'core/routes/app_pages.dart';
 import 'features/auth/controller/auth_controller.dart';
 import 'features/auth/login/presentation/login_screen.dart';
-import 'package:device_preview/device_preview.dart';
 import 'package:stream_video_flutter/stream_video_flutter.dart' as stream;
 
 import 'features/chats/presentation/call_screen.dart';
@@ -25,6 +25,7 @@ import 'features/chats/widgets/incoming_call_alert.dart';
 String? username;
 
 void main() async {
+  await dotenv.load(fileName: ".env");
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(
@@ -47,7 +48,7 @@ void main() async {
   );
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
-  runApp(DevicePreview(enabled: false, builder: (context) => const MyApp()));
+  runApp( MyApp());
 }
 
 class MyApp extends StatefulWidget {
@@ -97,11 +98,8 @@ class _MyAppState extends State<MyApp> {
       ],
       fallbackLocale: const Locale('en'),
       locale: const Locale('en'),
-      builder: (context, child) {
-        final previewChild = DevicePreview.appBuilder(context, child);
-
-        return previewChild;
-      },
+     
+      
       home: const LoginScreen(),
       themeMode: ThemeMode.light,
       theme: AppThemes.lightThemeData,

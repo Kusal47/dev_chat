@@ -90,4 +90,5 @@ class NotificationClass {
       log('\nsendPushNotificationE: $e');
     }
   }
+
 }
